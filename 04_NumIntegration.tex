@@ -1,0 +1,625 @@
+\section{Numerische Integration}
+
+\textit{Aufgabenstellung.}
+Gegeben sind die Datensätze $(x_i,f(x_i))$, $i=0,1,\ldots,n$ von Werten einer
+Funktion $f:[a,b]\to\R$.
+
+Gesucht ist eine Approximation des Integrals,
+\begin{align*}
+\int\limits_a^b f(x)\dx.
+\end{align*}
+\textit{Anwendungen.}
+\begin{itemize}
+  \item Approximation von Integralen, die man nicht analytisch lösen kann.
+\begin{bspn}
+$\int\limits_0^1 e^{x^2}\dx$.\bsphere
+\end{bspn}
+  \item Integration von Funktionen, die nicht vollständig bekannt sind, sondern
+  nur durch gemessene Daten oder eine im Computer implementierte Funktion.
+\end{itemize}
+Die allgemeine Sturktur einer numerischen Integration ist,
+\begin{align*}
+\int\limits_a^b f(x)\dx \approx \sum\limits_{i=0}^n \omega_i f(x_i),
+\end{align*}
+mit den \emph{Stützstellen} $x_i$ und \emph{(Integrations)-gewichten}
+$\omega_i$. Eine solche Formel nennt man auch \emph{Quadraturformel}.
+
+\subsection{Interpolatorische Quadraturformeln}
+
+Naheliegend ist es, Interpolationstechniken zu nutzen, um die Quadraturformel
+herzuleiten. Dazu integrieren wir das Interpolationspolynom zu den Daten
+\begin{align*}
+(x_i,f(x_i)),\qquad\text{für }i=0,\ldots,n.
+\end{align*}
+
+\subsubsection{Lagrange Darstellung}
+
+Wir verwenden die Interpolationspolynome von Lagrange
+\begin{align*}
+p(x) = \sum\limits_{i=0}^n f(x_i)L_i(x),
+\end{align*}
+mit
+\begin{align*}
+L_i(x) = \prod\limits_{\atop{k=0}{k\neq i}}^n \frac{x-x_k}{x_i-x_k},\quad
+L_i(x_k) = \delta_{ik}.
+\end{align*}
+Aufgrund der Linearität der Integration erhalten wir für das Integral,
+\begin{align*}
+\int\limits_a^b p(x)\dx = \sum\limits_{i=0}^n f(x_i)\underbrace{\int\limits_a^b
+L_i(x)\dx}_{\omega_i}.
+\end{align*}
+\begin{bspn}
+$[a,b]=[0,1]$, $n=2$ und $x_0=0$, $x_1=\frac{1}{2}$, $x_2=1$.
+\begin{align*}
+\omega_0 &= \int\limits_0^1 L_0(x)\dx
+= \int\limits_0^1 \frac{(x-\frac{1}{2})(x-1)}{\frac{1}{2}\cdot 1}\dx\\
+&= \int\limits_0^1 2\left( x^2 -x-\frac{1}{2}x+\frac{1}{2}\right)\dx
+= 2\left(\frac{1}{3} - \frac{3}{4} + \frac{1}{2}\right)
+= \frac{1}{6},\\
+\omega_1 &= \int\limits_0^1 L_0(x)\dx
+= \int\limits_0^1 \frac{x(x-1)}{\frac{1}{2}\cdot \frac{-1}{2}}\dx\\
+&= \int\limits_0^1 -4\left( x^2-x\right)\dx
+= -\frac{4}{3} + 2 = \frac{2}{3},\\
+\omega_2 &= \int\limits_0^1 L_0(x)\dx
+= \int\limits_0^1 \frac{x(x-\frac{1}{2})}{1\cdot \frac{1}{2}}\dx\\
+&= \int\limits_0^1 2\left( x^2-\frac{1}{2}x\right)\dx
+= \frac{2}{3} - \frac{1}{2} = \frac{1}{6}.
+\end{align*}
+Für die Quadraturformel erhalten wir
+\begin{align*}
+Q(f) = \frac{1}{6}\left(f(0)+4f\left(\frac{1}{2}\right) + f(1) \right).\bsphere
+\end{align*}
+\end{bspn}
+
+\begin{bemn}[Ergebnis.]
+Die interpolatorische Quadraturformel zu dem Integrationsintervall $[a,b]$ und 
+den Stützstellen $x_0,\ldots,x_n$ ist,
+\begin{align*}
+Q(f) = \sum\limits_{i=0}^n \omega_i f(x_i),\tag{1}
+\end{align*}
+mit
+\begin{align*}
+\omega_i = \int\limits_a^b \prod\limits_{\atop{j=0}{j\neq i}}^n
+\frac{x-x_j}{x_i-x_j}\dx.\tag{2}
+\end{align*}
+\end{bemn}
+
+\subsubsection{Newton-Cotes-Formeln}
+Newton-Cotes-Formeln sind interpolatorische Quadraturformeln mit
+\textit{äquidistanten Stützstellen}, d.h. $x_i-x_{i-1} = h$.
+
+\begin{defnn}
+Man unterscheidet zwischen \emph{abgeschlossenen} Newton-Cotes-Formeln
+\begin{align*}
+x_0 = a,\; x_n = b,\; x_i = a+ i\cdot h,\; h= \frac{b-a}{n},
+\end{align*}
+und \emph{offenen} Newton-Cotes-Formeln
+\begin{align*}
+x_1 = a+\frac{h}{2},\; x_n = b-\frac{h}{2},\; x_i = a+
+\frac{2i-1}{2}h,\;h=\frac{b-a}{n}.
+\end{align*}
+Die Quadraturformel hat die Form von (1),
+\begin{align*}
+Q(f) = \sum\limits_{i=1}^n \omega_i f(x_i),
+\end{align*}
+die $\omega_i$ sind durch (2) gegeben.\fishhere
+\end{defnn}
+
+
+\begin{figure}
+% Für $[a,b]=[0,1]$ sind die Integrationsgewichte der abgeschlossenen Formeln
+
+\begin{tabular}[h]{c|cl|cl}
+$n$ & $\omega_i$ abgeschlossen & & $\omega_i$ offen \\\hline
+$1$ & $\frac{1}{2},\;\frac{1}{2}$ & Trapezregel & $1$ & Mittelpunktsregel\\
+$2$ & $\frac{1}{6},\;\frac{2}{3},\;\frac{1}{6}$ & Simpson-Regel
+& $\frac{1}{2},\;\frac{1}{2}$\\
+$3$ & $\frac{1}{8},\;\frac{3}{8},\;\frac{3}{8},\;\frac{1}{8}$ &
+$\frac{3}{8}$-Regel & $\frac{3}{8},\;\frac{1}{4},\;\frac{3}{8}$
+\end{tabular}
+\caption{Integrationsgewichte der abgeschlossenen und offenen Formeln für
+$[a,b]=[0,1]$}
+% und der offenen Formeln
+% 
+% \begin{tabular}[h]{c|c|l}
+% $n$ & $\omega_i$ \\\hline
+% $1$ & $1$ & Mittelpunktsregel \\
+% $2$ & $\frac{1}{2},\;\frac{1}{2}$ & \\
+% $3$ & $\frac{3}{8},\;\frac{1}{4},\;\frac{3}{8}$ &
+% \end{tabular}
+\end{figure}
+
+
+\begin{figure}[h!tbp]
+\centering
+\begin{pspicture}(-0.2,-1.2221875)(3.141875,1.2021875)
+\psline{->}(0.62625,-0.9578125)(0.62625,0.8021875)
+\psline{->}(0.50625,-0.8378125)(2.98625,-0.8378125)
+\pspolygon[fillstyle=solid,fillcolor=glightgray](0.62625,-0.1778125)(2.72625,0.7021875)(2.70625,-0.8378125)(0.62625,-0.8378125)
+%\psline[fillstyle=solid,fillcolor=glightgray](0.62625,0.1821875)(2.70625,0.1821875)
+%TODO: glightblue
+\psbezier[linecolor=darkblue](0.58625,-0.2978125)(0.92625,1.1821876)(2.22625,-0.9578125)(2.76625,0.8421875)
+
+\rput(3.0117188,-1.0078125){\color{gdarkgray}$x$}
+
+\rput(0.231875,0.8121875){\color{gdarkgray}$f(x)$}
+
+\rput(2.673125,-1.0678124){\color{gdarkgray}$1$}
+
+\rput(0.50328124,-1.0678124){\color{gdarkgray}$0$}
+\end{pspicture} 
+\begin{pspicture}(-0.2,-1.2221875)(3.141875,1.2021875)
+\psline{->}(0.62625,-0.9578125)(0.62625,0.8021875)
+\psline{->}(0.50625,-0.8378125)(2.98625,-0.8378125)
+\pspolygon[fillstyle=solid,fillcolor=glightgray](0.62625,0.1821875)(2.72625,0.1821875)(2.70625,-0.8378125)(0.62625,-0.8378125)
+%\psline[fillstyle=solid,fillcolor=glightgray](0.62625,0.1821875)(2.70625,0.1821875)
+%TODO: glightblue
+\psbezier[linecolor=darkblue](0.58625,-0.2978125)(0.92625,1.1821876)(2.22625,-0.9578125)(2.76625,0.8421875)
+
+\rput(3.0117188,-1.0078125){\color{gdarkgray}$x$}
+
+\rput(0.231875,0.8121875){\color{gdarkgray}$f(x)$}
+
+\rput(2.673125,-1.0678124){\color{gdarkgray}$1$}
+
+\rput(0.50328124,-1.0678124){\color{gdarkgray}$0$}
+\end{pspicture}
+\caption{Trapetz- und Mittelpunktsregel.}
+\end{figure}
+
+\begin{bemn}
+Es genügt die Quadraturformeln des Integrationsgebiets $[0,1]$ zu kennen. Die
+Formeln für alle weiteren Gebiete folgen aus der Transformationsformel für Integrale,
+\begin{align*}
+\int\limits_a^b f(x)\dx &\overset{x=a+(b-a)y}{=} \int\limits_0^1 f\left(a+(b-a)y
+\right)(b-a)\dy\\
+&\approx \sum\limits_{i=0}^n \underbrace{(b-a)\omega_i}_{\tilde{\omega}_i}
+f\left(\underbrace{a+(b-a)y}_{\tilde{x}_i} \right).\maphere
+\end{align*}
+\end{bemn}
+
+\begin{bemn}[Probleme.]
+Bei der Verwendung von Newton-Cotes-Formeln können für großes $n$ ($n\ge 8$)
+\textit{negative} Integrationsgewichte auftreten. Dies kann zu Auslöschung
+bzw. zu numerischer Instabilität führen. 
+
+Außerdem konvergiert das Interpolationspolynom nicht notwendigerweise gegen die
+approximierte Funktion.
+\end{bemn}
+
+\subsubsection{Zusammengesetzte Newton-Cotes-Formeln}
+
+Die Idee ist, das Integrationsgebiet $[a,b]$ in Teilintervalle $[y_{i-1},y_i]$,
+$i=1,\ldots,m$ mit $a=y_0<y_1<\ldots<y_n =b$ zu unterteilen, auf denen das
+jeweilige Interpolationspolynom die Funktion gut approximiert.
+Verwende nun für jedes Teilintervall eine Newton-Cotes-Formel.
+\begin{bspn}
+\textit{Zusammengesetzte Trapetzregel}. Setze
+\begin{align*}
+y_i = a+ih,\quad i=0,\ldots,m,\quad h=\frac{b-a}{m}.
+\end{align*}
+Für das Integral folgt,
+\begin{align*}
+\int\limits_{a}^b f(x)\dx &= \sum\limits_{i=1}^m
+\int\limits_{y_{i-1}}^{y_i} f(x)\dx
+\approx \sum\limits_{i=1}^m \frac{y_i-y_{i-1}}{2}\left(f(y_{i-1}) + f(y_i)
+\right)\\
+&= \frac{h}{2}f(a) + h\sum\limits_{i=1}^{m-1} f(a+ih) + \frac{h}{2}f(b).
+\end{align*}
+Die zusammengesetzte Integrationsformel hat also die Form,
+\begin{align*}
+T_m(f) = h\left[\frac{1}{2}f(a) + \sum\limits_{i=1}^{m-1} f(a+ih) +
+\frac{1}{2}f(b) \right],\qquad h=\frac{b-a}{m}.
+\end{align*}
+\begin{figure}[h!tbp]
+\centering
+\begin{pspicture}(-0.2,-1.1121875)(5.041875,1.1021875)
+\psline{->}(0.62625,-0.8478125)(0.62625,0.9121875)
+\psline{->}(0.50625,-0.7278125)(4.98625,-0.7278125)
+
+\pspolygon(0.62625,0.1121875)(1.08625,-0.1478125)(1.92625,-0.0278125)(2.78625,0.4721875)(3.74625,0.7521875)(4.68625,0.3121875)(4.68625,-0.7278125)(0.62625,-0.7278125)
+\psbezier[linecolor=darkblue](0.62625,0.1121875)(1.04625,-0.4078125)(1.98625,-0.1278125)(2.56625,0.3121875)(3.14625,0.7521875)(4.16625,1.0721875)(4.74625,0.2321875)
+
+\rput(0.231875,0.9221875){\color{gdarkgray}$f(x)$}
+%\rput(0.50328124,-0.9578125){\color{gdarkgray}$0$}
+\rput(4.911719,-0.9578125){\color{gdarkgray}$x$}
+
+\psline(1.08625,-0.6478125)(1.08625,-0.8878125)
+\psline(1.92625,-0.6478125)(1.92625,-0.8878125)
+\psline(2.78625,-0.6478125)(2.78625,-0.8878125)
+\psline(3.74625,-0.6478125)(3.74625,-0.8878125)
+\psline(4.68625,-0.6478125)(4.68625,-0.8878125)
+\end{pspicture} 
+\caption{Zusammengesetzte Trapetzregel.}
+\end{figure}
+Wir sehen sowohl optisch als auch in den Fehlern ein deutlich besseres
+Konvergenzverhalten.\bsphere
+\end{bspn}
+
+\begin{bspn}
+\textit{Zusammengesetzte Simpsonregel}. Setze
+\begin{align*}
+&y_i = a+i2h,\quad i=0,\ldots,\frac{m}{2},\quad \frac{m}{2}\in\N,\quad
+h=\frac{b-a}{m},\\
+&x_i = a+ih,\quad i=0,\ldots,m.
+\end{align*}
+\begin{align*}
+s_m(f) &= h\bigg[\frac{1}{6}f(x_0) + \frac{2}{3}f(x_1) + \frac{1}{6}f(x_2)
++
+ \frac{1}{6}f(x_2) + \frac{2}{3}f(x_3) + \frac{1}{6}f(x_4) \\ &\qquad+ \ldots
+ + \frac{1}{6}f(x_{m-2}) + \frac{2}{3}f(x_{m-1})+\frac{1}{6}f(x_n)\bigg]\\
+&= \frac{h}{6}\left(f(a)+4\sum\limits_{i=1}^{m/2} f(x_{2i}-1) +
+2\sum\limits_{i=1}^{m/2-1} f(x_{2i}) + f(b)\right).
+\end{align*}
+Man kann von der zusammengesetzten Simpsonsformel ein deutlich schnelleres
+Konvergenzverhalten erwarten als von der zusammengesetzten Trapetzregel. Wir
+werden dies später bei der Fehleranalyse sehen.\bsphere
+\end{bspn}
+
+\subsubsection{Approximationseigenschaften}
+
+Durch Anwendung von Satz \ref{prop:3.4}, der Fehlerabschätzung für
+Interpolationspolynome, erhalten wir auch eine Fehlerabschätzung für die
+Quadraturformel:
+\begin{prop}
+\label{prop:4.1}
+Sei $Q(f) = \sum\limits_{i=0}^m \omega_i f(x_i)$ eine Quadraturformel mit
+\begin{align*}
+Q(p) = \int\limits_a^b p(x)\dx,\qquad\text{ für alle }p\in\PP_m. 
+\end{align*}
+Dann gilt für $f\in C^{m+1}([a,b])$
+\begin{align*}
+\abs{\int\limits_a^b f(x)\dx-Q(f) } \le \frac{1}{(m+1)!} \norm{f^{(m+1)}}_\infty
+\int\limits_a^b \prod\limits_{j=0}^m (x-x_j)\dx.\fishhere
+\end{align*}
+\end{prop} 
+\begin{proof}
+Sei $p$ das Interpolationspolynom zu
+\begin{align*}
+(x_i,f(x_i)),\qquad i = 0,\ldots,m,
+\end{align*}
+d.h. $p\in\PP_m$. Für die Quadraturformel gilt nach Vorassetzung,
+\begin{align*}
+Q(f) = Q(p) = \int\limits_a^b p(x)\dx.
+\end{align*}
+Mit Satz \ref{prop:3.4} folgt somit,
+\begin{align*}
+&\abs{\int\limits_a^b f(x)\dx - Q(f)} = \abs{\int\limits_a^b f(x) - p(x)\dx}\\
+&\le \int\limits_a^b \frac{1}{(m+1)!}\abs{f^{(m+1)}(\xi(x))}\abs{\prod
+\limits_{j=0}^m (x-x_j)}\dx\\
+&\le \frac{1}{(m+1)!} \norm{f^{(m+1)}}_\infty \int\limits_a^b
+\prod\limits_{j=1}^m \abs{x-x_j}\dx.\qedhere
+\end{align*}
+\end{proof}
+
+\begin{bspn}
+\textit{Trapezregel}
+\begin{align*}
+Q(f) = \frac{b-a}{2}\left(f(a) + f(b) \right).
+\end{align*}
+Hier ist $m=1$, $x_0=a$, $x_1=b$,
+\begin{align*}
+&\int\limits_a^b \abs{(x-x_0)(x-x_1)}\dx = \int\limits_a^b \abs{(x-a)(x-b)}\dx
+= \int\limits_a^b (x-a)(b-x)\dx \\ 
+&= \int\limits_0^{b-a} (b-a-x)\dx = 
+\left[-\frac{1}{3}x^3 + \frac{b-a}{2}x^2 \right]_0^{b-a} = \frac{1}{6}(b-a)^3.\\
+\Rightarrow & \abs{\int\limits_a^b f(x)\dx - Q(f)} \le
+\frac{(b-a)^3}{12}\norm{f''}_\infty.
+\end{align*}
+\textit{Zusammengesetzte Trapezregel} mit Schrittweite $h=\frac{b-a}{n}$,
+$x_j=a+j h$.
+\begin{align*}
+\abs{\int\limits_a^b f(x)\dx-\Gamma_n(f)} = \abs{\sum\limits_{i=1}^n
+\int\limits_{x_{i-1}}^{x_i}f(x)\dx - Q_i(f)},
+\end{align*}
+wobei $Q_i$ die Trapezregel für das entsprechende Intervall $[x_{i-1},x_i]$
+darstellt.
+%TODO: Jeanine fragen, \le (x-x_i)^3
+\begin{align*}
+&\le \sum\limits_{i=1}^n \frac{(x_i-x_{i-1})^3}{2}\norm{f''}_\infty \le
+n\frac{h^3}{12}\norm{f''}_\infty = \frac{b-a}{h}\frac{h^3}{12}\norm{f''}_\infty
+\\ &= \frac{b-a}{12}h^2\norm{f''}_\infty.\bsphere
+\end{align*}
+\end{bspn}
+\begin{bspn}
+\textit{Simpsonregel}
+\begin{align*}
+Q(f) = \frac{b-a}{2}\left(f(a) + 4f\left(\frac{a+b}{2}\right) + f(b) \right).
+\end{align*}
+Hier ist $m=2$, $x_0=a$, $x_1 = \frac{a+b}{2}$, $x_2 =b$,
+\begin{align*}
+\int\limits_a^b \abs{\prod\limits_{j=0}^2 (x-x_j)}\dx 
+&= \int\limits_a^b \abs{(x-a)\left(x-\frac{a+b}{2}\right)(x-b)}\dx\\
+&= 2\int\limits_a^{\frac{a+}{2}}
+\abs{(x-a)\left(x-\frac{a+b}{2}\right)(x-b)}\dx\\
+&= 2\int\limits_0^{\frac{b-a}{2}}
+\abs{x\left(x-\frac{b-a}{2}\right)\left(x-b-a\right)}\dx \\
+&=2\left[\frac{x^4}{2}-\frac{3}{2}(b-a)\frac{x^3}{3} +
+\frac{(b-a)^2}{2}\frac{x^2}{2} \right]_{0}^{\frac{b-a}{2}}\\
+&= 2\frac{1}{2^4}\left[\left(\frac{1}{4} - 1 + 1\right)(b+a)^4 \right] =
+\frac{1}{32}(b-a)^4\\
+\Rightarrow & \abs{\int\limits_a^b f(x)\dx -Q(f)} \le
+\frac{(b-a)^4}{192}\norm{f'''}_\infty.
+\end{align*}
+Zusammengesetze Simpsonregel mit Schrittweite $h=\frac{b-a}{n}$.
+\begin{align*}
+\abs{\int\limits_a^b f(x)\dx - S_n(f)} \le n \frac{h^4}{192}\norm{f'''}_\infty
+= \frac{b-a}{192}h^3\norm{f'''}_\infty.
+\end{align*}
+Die Abschätzung ist \textit{nicht optimal}. Numerische Ergebnisse lassen
+einen Faktor $\sim h^4$ erwarten. Wir können unsere Fehlerabschätzung
+verbessern, wenn wir berücksichtigen, dass die Simpsonregel auch Polynome vom
+Grad 3 exakt integriert.\bsphere
+\end{bspn}
+
+\begin{defn}
+\label{defn:4.2}
+Eine Quadraturformel der Form
+\begin{align*}
+Q(f) = \sum\limits_{i=0}^n \omega_i f(x_i)
+\end{align*}
+heißt \emph{symmetrisch} genau dann, wenn
+\begin{align*}
+x_{m-j} - x_{j} = a+b,\quad\text{und }\omega_{m-j} = \omega_j,\quad
+j=0,\ldots,m.
+\end{align*}
+\textit{Spezialfall}. $[a,b]=[-1,1]$. Dann heißt
+\begin{align*}
+Q(f) = \sum\limits_{i=0}^m \omega_i f(x_i)
+\end{align*}
+symmetrisch genau dann, wenn
+\begin{align*}
+x_{m-j} = -x_j,\quad \omega_{m-j} = \omega_j.\fishhere
+\end{align*}
+%TODO: Skizze.
+\end{defn}
+Es gilt dann für $k$ ungerade, dass
+\begin{align*}
+\int\limits_{-1}^1 x^k\dx = 0.
+\end{align*}
+\begin{align*}
+Q(x\mapsto x^k) = \sum\limits_{i=0}^m \omega_i x_i^k =
+\sum\limits_{i=0}^{\nrm{\frac{m-1}{2}}} \omega_i \underbrace{\left(x_i^k +
+(-x_i)^k \right)}_{=0}
++
+\begin{cases}
+0, & m\text{ ungerade},\\
+\omega_{\frac{m}{2}}\cdot \underbrace{x_{\frac{m}{2}}^k}_{0^k} , & m\text{
+gerade}.
+\end{cases}
+\end{align*}
+\begin{corn}
+$Q$ integriert Polynome der Art $p(x)=x^k$, $k$ ungerade, exakt (unabhängig vom
+Grad).\fishhere
+\end{corn}
+
+\begin{defn}
+\label{defn:4.3}
+Eine Quadraturformel $Q$ für das Intervall $[a,b]$ heißt \emph{exakt} auf
+$\PP_k$ genau dann, wenn
+\begin{align*}
+Q(p) = \int\limits_a^b p(x)\dx,\qquad \forall p\in\PP_k.\fishhere
+\end{align*}
+\end{defn}
+
+\begin{prop}
+\label{prop:4.4}
+Eine symmetrische Quadraturformel, die auf $\PP_{2l}$, $l\in \N_0:=\N\cup\{0\}$
+exakt ist, ist auch auf $\PP_{2l+1}$ exakt.\fishhere
+\end{prop}
+\begin{proof}
+Sei $Q(f) = \sum\limits_{i=0}^m \omega_i f(x_i)$ eine symmetrische
+Quadraturfromel auf $[a,b]$. Wir betrachten zunächst den Spezialfall
+\begin{align*}
+&q(x) = \left(x - \frac{a+b}{2}\right)^{2l+1},\\
+&\int\limits_{a}^b q(x)\dx = \int\limits_a^b \left(x -
+\frac{a+b}{2}\right)^{2l+1} \dx = \int\limits_{-\frac{b-a}{2}}^{\frac{b-a}{2}}
+y^{2l+1}\dy = 0.
+\end{align*}
+Daher ist
+\begin{align*}
+Q(q) = \sum\limits_{i=0}^m\underbrace{\omega_i}_{\omega_{m-i}}
+\underbrace{\left( x_i -
+\frac{a+b}{2} \right)^{2l+1}}_{-\left(x_{m-i}-\frac{a+b}{2}\right)} = 0,
+\end{align*}
+aufgrund der Symmetrie.
+
+Für $p\in\PP_{2l+1}$ existiert ein $\alpha\in\R$ und $r\in\PP_{2l}$ mit $p =
+\alpha q + r$.
+\begin{align*}
+\Rightarrow  Q(p) &= \sum\limits_{i=0}^m \omega_i\left(\alpha q +r \right)(x_i)
+= \alpha\sum\limits_{i=0}^m \omega_i q(x_i) + \sum\limits_{i=0}^m \omega_i
+r(x_i)\\
+&= \alpha \int\limits_a^b q(x)\dx + \int\limits_a^b r(x)\dx = 
+\int\limits_a^b p(x)\dx.\qedhere
+\end{align*}
+\end{proof}
+\begin{corn}
+Eine Newton-Cotes-Formel
+\begin{align*}
+Q(f) = \sum\limits_{i=0}^m \omega_i f(x_i),
+\end{align*}
+der Stufe $m$ ist
+\begin{enumerate}[label=(\roman{*})]
+  \item symmetrisch,
+  \item  exakt auf $
+\begin{cases}
+\PP_m, & \text{für }m\text{ ungerade},\\
+\PP_{m+1}, & \text{für }m\text{ gerade}.\fishhere
+\end{cases}
+$
+\end{enumerate}
+\end{corn}
+\begin{proof}
+Der Beweis der Symmetrie sei als Übung überlassen.\qedhere
+\end{proof}
+Insbesondere ist die Simpsonformel exakt auf $\PP_3$.
+
+\begin{prop}[Fehlerdarstellung von Peano]
+\label{prop:4.5}
+Sei $Q(f)=\sum\limits_{i=0}^m \omega_if(x_i)$ eine auf $\PP_k$ exakte
+Integrationsformel für $[a,b]$. Dann gilt für $f\in C^{k+1}([a,b])$
+\begin{align*}
+&Q(f) - \int\limits_a^b f(x)\dx = \int_a^b K(t)f^{(k+1)}(t)\dt,\\
+&K(t) = \frac{1}{k!}\left[\sum\limits_{i=0}^m \omega_i (x_i-t)_+^k -
+\int\limits_a^b (x-t)_+^k \dx \right]\\
+&\qquad= \frac{1}{k!}\left[\sum\limits_{i=0}^m
+Q\left(x\mapsto (x-t)_+^k\right) - \int\limits_a^b (x-t)_+^k \dx
+\right]\fishhere
+\end{align*}
+\end{prop}
+\begin{proof}
+Taylorentwicklung mit Integralrestglied ergibt,
+\begin{align*}
+f(x) &= \sum\limits_{l=0}^k \frac{f^{(l)}(a)}{l!}(x-a)^l + \int\limits_a^x
+\frac{(x-t)^k}{k!}f^{(k+1)}(t)\dt \\&=
+\sum\limits_{l=0}^k \frac{f^{(l)}(a)}{l!}(x-a)^l + \int\limits_a^b
+\frac{(x-t)_+^k}{k!}f^{(k+1)}(t)\dt.
+\end{align*}
+Wenden wir darauf die Integrationsformel an,
+\begin{align*}
+Q(f) &= \sum\limits_{l=0}^k \frac{f^{(l)}(a)}{l!}\underbrace{\sum\limits_{i=0}^m
+\omega_i (x_i-a)^l}_{Q((x-a)^l)} + \int\limits_a^b \sum\limits_{i=0}^m \omega_i
+(x_i-t)_+^k \frac{f^{(k+1)}(t)}{k!}\dt\\
+&= \sum\limits_{l=0}^k \frac{f^{(l)}(a)}{l!}\int\limits_a^b (x-a)^l\dx +
+\int\limits_a^b \sum\limits_{i=0}^m \omega_i (x_i-t)_+^k
+\frac{f^{(k+1)}(t)}{k!}\dt.
+\end{align*}
+Das Integral über $f$ können wir auch darstellen als,
+\begin{align*}
+\int\limits_a^b f(x)\dx = \sum\limits_{l=0}^k
+\frac{f^{(l)}(a)}{l!}\int\limits_a^b (x-a)^l\dx +
+\int\limits_a^b\int\limits_a^b \frac{(x-t)_+^k}{k!}f^{(k+1)}(t)\dx\dt.
+\end{align*}
+Somit ergibt sich die Behauptung,
+\begin{align*}
+Q(f) - \int\limits_a^b f(x)\dx = 
+\int\limits_a^b\frac{1}{k!}\left[ \sum\limits_{i=0}^m \omega_i (x_i-t)_+^k
+ - \int\limits_a^b
+(x-t)_+^k\dx\right]f^{(k+1)}(t)\dt.\qedhere
+\end{align*}
+\end{proof}
+
+\begin{bspn}
+\textit{Trapezregel.}
+\begin{align*}
+Q(f) &= \frac{b-a}{2}\left(f(a) + f(b) \right),\quad k=1\\
+\Rightarrow K(t) &= \frac{b-a}{2}\left[(a-t)_+ + (b-t)_+\right] -
+\int\limits_a^b (x-t)_+\dx\\
+&\overset{\text{für }t\in(a,b)}{=}
+\frac{b-a}{2}(b-t)- \int\limits_t^b (x-t)\dx
+= \frac{b-t}{2}\left[b-a-(b-t)\right] \\& = \frac{1}{2}(b-t)(t-a).
+\end{align*}
+Wegen $K(t)\ge0$ für $t\in[a,b]$ folgt,
+\begin{align*}
+\int\limits_a^b K(t)f''(t)\dt &= f''(\xi)\int\limits_a^b K(t)\dt
+= f''(\xi)\int\limits_0^{b-a} \frac{y(b-a-y)}{2} \dy\\
+&= f''(\xi) \frac{\frac{1}{2}by^2 - \frac{1}{2}ay^2 -
+\frac{1}{3}y^3}{2}\bigg|_0^{b-a}\\
+&= f''(\xi) \frac{3b(b-a)^2 - 3a(b-a)^2 -
+2(b-a)^3}{12}\\
+&=\frac{f''(\xi)}{12}(b-a)^3
+\end{align*}
+\textit{Simpsonregel.}
+\begin{align*}
+&Q(f) = \frac{b-a}{6}\left(f(a) + 4\frac{f(a+b)}{2} + f(b) \right)\\ 
+\Rightarrow &K(t) = 
+\begin{cases}
+\frac{(t-a)^3}{72}(a+2b-3t), & a\le t\le \frac{a+b}{2},\\
+\frac{(b-t)^3}{72}(3t-2a-b), & \frac{a+b}{2}\le t\le b,
+\end{cases}\\
+&Q(f) -\int\limits_a^b f(x)\dx = \frac{(b-a)^5}{2880} f^{(4)}(\xi)\bsphere
+\end{align*}
+\end{bspn}
+
+\begin{bemn}[Bemerkungen.]
+\begin{enumerate}[label=\arabic{*}.)]
+\item Falls $Q$ exakt auf $\PP_0$, also
+\begin{align*}
+\sum\limits_{i=0}^m \omega_i = b-a = \int_a^b 1\dx,
+\end{align*}
+und $\omega_i \ge 0$ für $i=0,\ldots,m$, dann
+\begin{align*}
+\abs{K(t)} &\le \frac{1}{k!}\left[ \sum\limits_{i=0}^m \omega_i (x_i-t)_+^k +
+\int\limits_a^b (x-t)_+^k \dx \right]\\
+&\le  \frac{1}{k!}\left[ \sum\limits_{i=0}^m \omega_i (b-a)^k +
+\int\limits_a^b (b-a)^k \dx \right] \\ &\le
+\frac{2}{k!}(b-a)^{k+1}
+\end{align*}
+Einsetzen in die Fehlerabschätzung ergibt,
+\begin{align*}
+\abs{Q(f)-\int\limits_a^b f(x)\dx} \le
+\int\limits_a^b \abs{K(t)}\abs{f^{(k+1)}(t)}\dt
+\le \norm{f^{(k+1)}}_\infty \frac{2}{k!}(b-a)^{k+2}.
+\end{align*}
+Die Abschätzung ist jedoch nicht so genau, hier erhalten wir für die Konstante
+$\frac{2}{3}$ und dies ist weit weg von $\frac{1}{2280}$
+\item
+Falls $K(t)$ \textit{keinen} Vorzeichenwechsel auf $[a,b]$ hat, dann gilt
+\begin{align*}
+\int\limits_a^b K(t)^{(k+1)}(t)\dt = f^{(k+1)}(\xi)\int\limits_a^b K(t)\dt
+\end{align*}
+mit $\xi\in[a,b]$.\maphere
+\end{enumerate}
+\end{bemn}
+
+\subsubsection{Anwendung auf zusammengesetzte Quadraturformeln}
+
+Betrachte das Integrationsintervall $[a,b]$ mit der Unterteilung
+\begin{align*}
+[y_{j-1},y_j],\quad j=1,\ldots,n,
+\end{align*}
+mit $y_j = a+jh$ und Schrittweite $h=\frac{b-a}{h}$.
+
+\begin{defnn}
+Eine \emph{zusammengesetzte Quadraturformel} ist gegeben durch,
+\begin{align*}
+Q(f) = \sum\limits_i^n Q_i(f),
+\end{align*}
+wobei die $Q_i$ Quadraturformeln für $[y_{i-1},y_i]$ sind.\fishhere
+\end{defnn}
+
+\begin{bemn}[Voraussetzung.]
+$Q_j$ ist exakt auf $\PP_k$.
+\begin{align*}
+\Rightarrow \abs{Q(f)-\int\limits_a^b f(x)\dx} &\le \sum\limits_{i=1}^n
+\abs{Q_i(f)-\int\limits_{y_{i-1}}^{y_i} f(x)\dx}
+\le nCh^{k+2}\norm{f^{(k+1)}}_\infty \\ &= (b-a)\norm{f^{(k+1)}}_\infty
+h^{k+1}
+\end{align*}
+Dabei hängt $C$ von $Q$ ab, es gilt
+\begin{align*}
+C \le \frac{2}{k!}.
+\end{align*}
+Die obere Schranke muss nicht gut sein - wie wir bei der Simpsonregel gesehen
+haben - sie funktioniert dafür aber allgemein.
+\end{bemn} 
+
+\subsection{Gauß-Quadratur}
+
+Bisher waren die Stützstellen $(x_i)$ einer Quadraturformel
+\begin{align*}
+Q(f) = \sum\limits_{i=0}^m \omega_i f(x_i)
+\end{align*}
+fest vorgegeben.
+
+\begin{bemn}[Frage:]
+Kann man die Genauigkeit einer Quadraturformel verbessern, indem man die
+Stützstellen $x_i$ geschickt wählt?
+\end{bemn}
+
+\begin{defnn}[Hilfsmittel]
+Sei $[a,b]$, $a<b$ ein Intervall. Dann wird auf $\PP_m$ durch
+\begin{align*}
+\lin{p,q} = \int\limits_a^b p(x)q(x)\dx.
+\end{align*}
+ein \emph{Skalarprodukt} definiert, d.h.
+\begin{enumerate}[label=(\roman{*})]
+\item $\lin{p+q,r} = \lin{p,q}+\lin{q,r}$,\quad $\forall p,q,r\in\PP_m$\\
+$\lin{\alpha p,r} = \alpha\lin{p,r}$,\quad $\forall p,r\in\PP_m$, $\alpha\in\R$,
+\item $\lin{p,q}=\lin{q,p}$,\quad $\forall p,q\in\PP_m$,
+\item $\lin{p,p} \ge 0$,\quad $\forall p\in\PP_m$.\fishhere
+\end{enumerate}
+\end{defnn}
+Das Skalarprodukt und die Orthogonalitätsbeziehung hängen vom Intervall $[a,b]$
+ab, d.h. $p\bot q$ auf $[a,b]$ erzwingt nicht $p\bot q$ auf $[c,d]$.

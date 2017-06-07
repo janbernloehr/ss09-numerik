@@ -1,0 +1,1620 @@
+\section{Lineare Gleichungssysteme}
+Wir kennen \emph{lineare Gleichungssysteme} (LGS) bereits aus der Linearen
+Algebra. Es handelt sich hierbei um ein System von linearen Gleichungen der Form,
+\begin{align*}
+\sum\limits_{j=1}^n a_{ij}x_j = b_i,\quad i = 1,\ldots,m,
+\end{align*}
+mit $a_{ij}, b_i\in\R$ bekannt und $x_j\in\R$ gesucht.
+Als Kurzschreibweise verwenden wir die \emph{Matrix-Vektor-Notation}
+\begin{align*}
+Ax= b,\qquad A=(a_{ij})\in\R^{m\times n},\quad b = (b_j)\in\R^m,\
+x=(x_j)\in\R^n.
+\end{align*}
+
+In diesem Kapitel wollen wir numerische Lösungsverfahren für diese Systeme
+betrachten. Das naheliegendste, die Inverse von $A$ zu bilden und damit die
+Lösung $x=A^{-1}b$ zu berechnen ist numerisch ``teuer'', d.h. es sind sehr
+viele Rechenoperationen notwendig, und zudem ``schwierig'', da dabei sehr
+kleine bzw. sehr große Zahlen und damit Effekte wie Auslöschung oder Overflows
+auftreten können.
+
+Es existieren jedoch zahlreiche numerische Lösungsverfahren mit
+unterschiedlichen Voraussetzungen an die Matrix $A$. In der Regel sind
+allgemeine Verfahren langsamer als diejenigen, die spezielle Anforderungen an
+$A$ stellen. Kennt man jedoch das Problem und damit die Eigenschaften von $A$
+genau, so lässt sich oft ein optimiertes Verfahren wählen.
+
+\subsection{Gauß-Elimination}
+Als Lösungsverfahren haben wir ebenfalls in der Linearen Algebra den Gauß
+Algorithmus kennengelernt. Wir verwenden dazu die erweiterte Matrix Notation
+\begin{align*}
+Ax = b \rightarrow (Ax|b).
+\end{align*}
+Ziel ist eine Transformation auf obere Dreiecksgestalt,
+\begin{align*}
+(A|b) \rightarrow (\hat{A}|\hat{b}).
+\end{align*}
+\begin{bspn} Betrachte eine $4\times 5$-Matrix $(A|b)$ und
+führe den Gauß-Algorithmus aus,
+\begin{align*}
+&
+\left(
+\begin{array}{cccc|c}
+1 & 1 & 0 & 1 & 4\\
+3 & -1 & -1 & 2 & -1\\
+-1 & 3 & 2 & -1 & 2\\
+5 & 5 & 0 & 2 & 8
+\end{array}
+\right)
+\sim
+\left(
+\begin{array}{cccc|c}
+1 & 1 & 0 & 1 & 4\\
+0 & -4 & -1 & -1 & -13\\
+0 & 4 & 2 & 0 & 6\\
+0 & 0 & 0 & -3 & -12
+\end{array}
+\right)
+\\
+&\sim
+\left(
+\begin{array}{cccc|c}
+1 & 1 & 0 & 1 & 4\\
+0 & -4 & -1 & -1 & -13\\
+0 & 0 & 1 & -1 & -7\\
+0 & 0 & 0 & -3 & -12
+\end{array}
+\right).
+\end{align*}
+Wir lösen das LGS durch Rückwärtsauflösen,
+\begin{align*}
+x_4 &= \frac{-12}{-3} = 4,\\
+x_3 &= x_3 - 7 = -3,\\
+x_2 &= \frac{1}{-4}\left(-13+x_3+x_4\right) = \frac{1}{-4}\left(-13 - 3+4\right)
+= 3,\\
+x_1 &= -x_2 -x_4 + 4 = -3 - 4+4 = -3.
+\end{align*}
+Die Lösung hat also die Form,
+\begin{align*}
+x = \begin{pmatrix}
+    -3 \\ 3\\ -3\\ 4
+    \end{pmatrix}.\bsphere
+\end{align*}
+\end{bspn}
+
+\subsubsection{Algorithmus}
+Wir betrachten die Gaußelimination für $n\times n$ Systeme $Ax = b$ mit
+$A\in\R^{n\times n}$, $b\in\R^n$ ohne Pivotisierung, d.h. ohne Vertauschung von
+Zeilen. Dabei gehen wir davon aus, dass auf der Diagonalen bei jedem Schritt der Elimination von Null verschiedene
+Einträge stehen, das LGS also insbesondere lösbar ist.
+
+\begin{tabbing}
+\hspace{20pt}	Für $i=1\ldots n-1$ (Spalten)\\
+\hspace{40pt}		Für $j=i+1,\ldots,n$ (Zeilen)\\
+\hspace{60pt}			$l_{ji} = \dfrac{a_{ji}}{a_{ii}}$\\
+\hspace{60pt}			Für $k=i+1,\ldots,n$\\
+\hspace{80pt}				$a_{jk} = a_{jk}-l_{ji}\cdot a_{ik}$\\
+\hspace{60pt}			$b_j = b_j + l_{ji}b_i$
+\end{tabbing}
+		
+Dieser Algorithmus überschreibt die ``alte'' Matrix durch die ``neue'' obere
+rechte Dreiecksmatrix. Die Stellen, in der normalerweise Nullen stehen, bleiben
+unberührt, tragen also noch die ``alten'' Werte, sie werden aber auch nicht
+mehr benötigt.
+
+\noindent\textit{Rückwärtssubsitution.}
+\begin{tabbing}
+\hspace{20pt}	$x_n = \dfrac{b_n}{a_{nn}}$\\
+\hspace{20pt}	Für $j=n-1,n-2,\ldots,1$\\
+\hspace{40pt}			$x_j = \frac{1}{a_{ji}}\left(b_j - \sum\limits_{k=j+1}^n a_{jk}
+x_k \right)$
+\end{tabbing}
+
+\begin{bemn}[Rechenaufwand.]
+Wir zählen die Multiplikationen und Divisionen, da
+diese für einen Prozessor aufwändigere Operationen darstellen, als Addieren und Subtrahieren.\footnote{Für
+Menschen gilt dies im Übrigen auch - ein Beweis dafür sind die
+Logarithmentafeln, die aber heute fast keiner mehr kennt\ldots}\\
+Gauß-Elimination:
+\begin{align*}
+&\sum\limits_{i=1}^{n-1}\sum\limits_{j=i+1}^n \left(1 +
+\left(\sum\limits_{k=i+1}^n 1\right) + 1\right)
+= \sum\limits_{i=1}^{n-1}\sum\limits_{j=i+1}^n n-i +2\\
+ &= \sum\limits_{i=1}^{n-1}(n-i)(n-i +2)
+= \sum\limits_{i=1}^{n-1}i^2 - (2n+2)\sum\limits_{i=1}^{n-1}i +
+n(n+2)\sum\limits_{i=1}^{n-1} 1\\
+&= \frac{(n-1)n(2n-1)}{6} - (2n+2)\frac{(n-1)n}{2} + n(n+2)(n-1)\\
+&= \frac{(n-1)n}{6}\left[2n-1 - 6(n+1) + 6(n+2)\right]\\
+&= \frac{(n-1)n}{6}\left(2n +5\right)
+= \frac{(n-1)n(2n+5)}{6}\\
+&\approx \frac{1}{3}n^3 + \OO(n^2).
+\end{align*}
+Rückwärtsauflösung:
+\begin{align*}
+&1 + \sum\limits_{j=1}^{n-1}\left(1+n-j\right) = 1 + (n-1)(n+1) -
+\frac{(n-1)n}{2} \\ 
+&= 1 + n^2 -1 -\frac{n^2-n}{2} =
+\frac{1}{2}(n^2+n)
+\end{align*}
+Der Aufwand der Rückwärtsauflösung ist mit $\approx \frac{1}{2}n^2+\OO(n)$
+gegenüber dem der Gauß-Elimination zu vernachlässigen. Der Aufwand zum Lösen
+eines LGS mit Gauß-Elimination beträgt also etwa $\frac{1}{3}n^3$
+Multiplikationen und Divisionen.
+%$\mathbb{abcdefghijklmnopqrstuvwxyz1234567890}$
+\end{bemn}
+
+\subsection{Die $LU$-Zerlegung}
+Wir wollen nun ein weiteres Verfahren zur Lösung von linearen
+Gleichungssystemen betrachten, die $LU$-Zerlegung. Der Name kommt aus dem
+Englischen von ``lower-upper-seperation''. In Deutscher Literatur ist 
+auch oft von links-rechts Zerlegung die Rede.
+
+Bei der Gauß-Elimination ist die Grundoperation die Addition vom $-l$-fachen
+der Zeile $i$ zur Zeile $j$. Dies können wir für eine Matrix $A=(a_{jk})$ durch
+eine Matritzenmultiplikation darstellen,
+\begin{align*}
+A\mapsto GA,\quad a_{jk} \mapsto a_{jk}- l\cdot a_{ik},
+\end{align*}
+mit der Matrix
+\begin{align*}
+G = \begin{pmatrix}
+1 & & & &  \\
+ & \ddots & -l_{ji} & &  \\
+ & & \ddots & &  \\
+ & & & \ddots &  \\
+ & & & &  1\\
+\end{pmatrix} = \Id - l_{ji}e_je_i^t,
+\end{align*}
+wobei $-l_{ji}$ der $i$-te Eintrag in der $j$-ten Zeile ist.
+
+Der $i$-te Schritt der Gauß-Elimination lässt sich also darstellen als $A\to
+G_i A$, mit
+\begin{align*}
+G_i = \begin{pmatrix}
+1 & & & &  \\
+ & \ddots &  & &  \\
+ & -l_{i+1,i}& \ddots & &  \\
+ & \vdots& & \ddots &  \\
+ & -l_{n,i}& & &  1\\
+\end{pmatrix} = \Id - \sum\limits_{j=l+1}^n l_{ji}e_je_i^t,
+\end{align*}
+Das Resultat der Gauß-Elimination lautet,
+\begin{align*}
+U = G_{n-1}G_{n-2}\cdots G_1 A,
+\end{align*}
+wobei $A$ die ursprüngliche Matrix und $U$ eine obere Dreiecksmatrix
+darstellen. Dabei sind die $G_i$ untere Dreiecksmatritzen mit
+Determinante $1$, also invertierbar. Setzen wir nun,
+\begin{align*}
+L = (G_{n-1}G_{n-2}\cdots G_1)^{-1} = G_{1}^{-1}\cdots G_{n-2}^{-1}
+G_{n-1}^{-1},
+\end{align*}
+so erhalten wir die $LU$-Zerlegung von $A$ durch, $A = L\cdot U$.
+
+Der nächste Satz liefert uns detaillierte Informationen über die Gestallt der
+Matrix $L$.
+\begin{prop}
+\label{prop:2.1}
+Die Matrix $L$ der $LU$-Zerlegung hat die Form,
+\begin{align*}
+L = \begin{pmatrix}
+1 & & & &  \\
+ l_{21}& \ddots &  & &  \\
+ \vdots & \ddots& \ddots & &  \\
+ \vdots & \ddots &  \ddots & \ddots &  \\
+ l_{n1} & \cdots & \cdots & l_{nn-1} &  1\\
+\end{pmatrix},
+\end{align*}
+mit den Eliminationsfaktoren $l_{ji} = \frac{a_{ji}^{(i-1)}}{a_{ii}^{(i-1)}}$,
+ wobei $A^{(k)} = (a_{ji}^{(k)}) = G_k \cdots G_1 A$ die Matrix nach dem $k$-ten
+ Schritt der Gaußelimination darstellt.\fishhere
+\end{prop}
+\begin{proof}
+Wir können die aus der $LU$-Zerlegung gewonnen $G_j$ auch darstellen als,
+\begin{align*}
+G_j=\begin{pmatrix}
+  1 & & & & \\
+   & \ddots & & &\\
+    & & 1 & & \\
+    & & -l_{j+1,j} &  & \\
+    & & \vdots & \ddots & \\
+    & & -l_{n,j} & & 1
+  \end{pmatrix}
+= \Id -
+\underbrace{\begin{pmatrix}
+0 \\  \vdots \\ 0 \\ -l_{j+1,j} \\ \vdots \\ -l_{n,j}
+\end{pmatrix}}_{:=b_j}e_j^\top
+\end{align*}
+Damit ergibt sich,
+\begin{align*}
+(\Id - b_j e_j^\top)(\Id + b_je_j^\top) = \Id + b_j e_j^\top - b_je_j^\top -
+b_je_j^\top b_je_j^\top = \Id + b_j\underbrace{\lin{e_j,b}}_{=0}e_j^\top
+ = \Id,
+\end{align*}
+also ist $\Id + b e_j^\top$ invers zu $G=\Id - be_j^\top$ und damit hat $G^{-1}$
+die Form,
+\begin{align*}
+G^{-1}=\begin{pmatrix}
+  1 & & & & \\
+    & \ddots & & &\\
+    & & 1 & & \\
+    & & l_{j+1,j} &  & \\
+    & & \vdots & \ddots & \\
+    & & l_{n,j} & & 1
+  \end{pmatrix}.
+\end{align*}
+Wir zeigen nun durch Induktion, dass
+\begin{align*}
+G_i^{-1}\cdots G_{n-1}^{-1} = 
+\begin{pmatrix}
+  1 &  & & & \\
+   & \ddots & & &\\
+    & & 1 & & \\
+    & & -l_{i+1,i} &  \ddots& \\
+    & & \vdots & \ddots & \ddots & \\
+    & & -l_{n,i} &\cdots & l_{n,n-1} & 1
+  \end{pmatrix}.
+\end{align*}
+Induktionsanfang. $i=n-1$ ist klar.\\
+Induktionsschritt. $(i+1)\Rightarrow i$.
+\begin{align*}%TODO: Boxen bei Jeanine nachschaun.
+&\begin{pmatrix}
+  1 & & & \\
+    & \ddots& &\\
+    & & 1 &  \\
+    & & 
+\fcolorbox{white}{white}{$\begin{matrix}
+-l_{i+1,i}\\
+\vdots\\
+-l_{n,i}
+\end{matrix}$}
+& \fcolorbox{black}{white}{$\begin{matrix}
+1 \\
+& \ddots\\
+&& 1
+\end{matrix}$}
+\end{pmatrix}
+\begin{pmatrix}
+1 & &  \\
+  & \ddots &  \\
+  & & 1\\
+  & &
+\fcolorbox{black}{white}{$
+\begin{matrix}
+-l_{i+1,i+1} &  1  & \\
+\vdots &  \ddots& \ddots & \\
+-l_{n,i+1}  & \cdots & l_{n,i+1} & 1
+\end{matrix}
+$}
+\end{pmatrix}\\
+&=\begin{pmatrix}
+  1 &  & & & \\
+   & \ddots & & &\\
+    & & 1 & & \\
+    & & -l_{i+1,i} &  \ddots& \\
+    & & \vdots & \ddots & \ddots & \\
+    & & -l_{n,i} &\cdots & l_{n,n-1} & 1
+  \end{pmatrix}.
+\end{align*} 
+Für $i=1$ folgt daher,
+\begin{align*}
+L=G_{1}^{-1}\cdots G_{n-1}^{-1} = 
+\begin{pmatrix}
+1 &\\
+l_{2,1} & \ddots \\ 
+\vdots  & \ddots & \ddots \\
+l_{n,1} & \cdots & l_{n,n-1} & 1
+\end{pmatrix}.\qedhere
+\end{align*}
+\end{proof}
+
+\subsubsection{Praktische Durchführung der LU-Zerlegung}
+Beim Berechnen der LU-Zerlegung werden die Einträge für $L$ und $U$ in einer
+einzigen Matrix gespeichert,
+\begin{align*}
+(L/U) =
+\begin{pmatrix}
+u_{1,1} & \cdots & u_{1,n}\\
+l_{2,1} & \ddots &\vdots \\
+\vdots & \ddots & u_{n,n}\\
+l_{n,1} & \cdots & l_{n,n-1}
+\end{pmatrix}
+\end{align*}
+Der Algorithmus entspricht dem der Gauß-Elimination ohne rechte Seite, wobei
+die Eliminationsfaktoren $l_{ji}$ als neue Werte $a_{ji}$ gespeichert werden.
+\begin{tabbing}
+\hspace{20pt}	Für $i=1,\ldots,n-1$\\
+\hspace{40pt}		Für $j=i+1,\ldots,n$\\
+\hspace{60pt}			$a_{ji} = \dfrac{a_{ji}}{a_{ii}}$\\
+\hspace{60pt}			Für $k=i+1,\ldots,n$\\
+\hspace{80pt}				$a_{jk} = a_{jk}-a_{ji}\cdot a_{ik}$\\
+\end{tabbing}
+\begin{bemn}[Rechenaufwand.]
+Die Anzahl der Multiplikationen beträgt,
+\begin{align*}
+&\sum\limits_{i=1}^{n-1}\sum\limits_{j=i+1}^n (1+n-i)
+= \sum\limits_{i=1}^{n-1} (n-i)(n-i+1)
+= \sum\limits_{i=1}^{n-1} n^2 - ni +  - ni + i^2 -i\\
+&= \sum\limits_{i=1}^{n-1} n^2 - 2ni + n - i + i^2= \sum\limits_{i=1}^{n-1}
+(n^2+n) - (2n+1)i + i^2\\
+&= n(n-1)(n-1) - \frac{(2n+1)(n-1)n}{2} + \frac{1}{6}(n-1)(2n-1)\\
+&=\frac{1}{6}n(n-1)\left[(2n-1) - 3(2n+1) + 6(n-1) \right]\\
+&= \frac{1}{6}n(n-1)\left(2n+2\right) = \frac{1}{3}n^3 - \frac{1}{3}n.\maphere
+\end{align*}
+\end{bemn}
+
+\begin{bspn} LU-Zerlegung einer $4\times 4$-Matrix
+\begin{align*}
+&\begin{pmatrix}
+1 & 1 & 0 & 1\\
+3 & -1 & -1 & 2\\
+-1 & 3 & 2 & -1\\
+5 & 5 & 0 & 2
+\end{pmatrix}
+\sim
+\begin{pmatrix}
+1 & 1 & 0 & 1\\
+3 & -4 & -1 & -1\\
+-1 & 4 & 2 & 0\\
+5 & 0 & 0 & -3
+\end{pmatrix}
+\sim
+\begin{pmatrix}
+1 & 1 & 0 & 1\\
+3 & -4 & -1 & -1\\
+-1 & -1 & 1 & -1\\
+5 & 0 & 0 & -3
+\end{pmatrix}\\
+&\sim
+\begin{pmatrix}
+1 & 1 & 0 & 1\\
+3 & -4 & -1 & -1\\
+-1 & -1 & 1 & -1\\
+5 & 0 & 0 & -3
+\end{pmatrix}\\
+\Rightarrow &
+L =
+\begin{pmatrix}
+1 & 0 & 0 & 0\\
+3 & 1 & 0 & 0\\
+-1 & -1 & 1 & 0\\
+5 & 0 & 0 & 1
+\end{pmatrix},\quad
+U = 
+\begin{pmatrix}
+1 & 1 & 0 & 1\\
+0 & -4 & -1 & -1\\
+0 & 0 & 1 & -1\\
+0 & 0 & 0 & -3
+\end{pmatrix}.\bsphere
+\end{align*}
+\end{bspn}
+
+Wir wollen nun lineare Gleichungssysteme mit Hilfe der $LU$-Zerlegung lösen.
+Seien also $A\in\R^{n\times n}, b\in\R^n$ und $Ax = b$, sowie
+\begin{align*}
+A=LU \Rightarrow LUx = b.
+\end{align*}
+Nun setzen wir $y=Ux$ und lösen $Ly=b$ durch Vorwärtsauflösen und anschließend
+$Ux = y$ durch Rückwärtsauflösen. Da $L$ und $U$ bereits
+Dreiecksgestallt haben, ist dieses Vorgehen sehr schnell.
+
+Wir können dazu die folgenden Algorithmen verwenden:\\
+\textit{Vorwärtsauflösen.}
+\begin{tabbing}
+\hspace{20pt}	$y_1 = b_1$\\
+\hspace{20pt}	Für $i=2,\ldots,n$\\
+\hspace{40pt}		$y_i = b_i - \sum\limits_{j=1}^{i-1} l_{ij}y_j$
+\end{tabbing}
+\textit{Rückwärtsauflösen.}
+\begin{tabbing}
+\hspace{20pt}	$x_n = \dfrac{y_n}{u_{nn}}$\\
+\hspace{20pt}	Für $i=n-1,\ldots,1$\\
+\hspace{40pt}		$x_i = \frac{1}{u_{ii}}\left(y_i - \sum\limits_{j=i+1}^n
+u_{ij}x_j \right)$
+\end{tabbing}
+Der Rechenaufwand dieser Operationen beträgt,
+\begin{bemn}[Rechenaufwand.]
+Vorwärtsauflösen
+\begin{align*}
+\sum\limits_{i=2}^n (i-1) = \sum\limits_{i=1}^{n-1} i = \frac{(n-1)n}{2}.
+\end{align*}
+Rückwärtsauflösen
+\begin{align*}
+\frac{n(n+1)}{2}.
+\end{align*}
+\end{bemn}
+Es werden also $\approx n^2$ Operationen (Multiplikationen / Divisionen)
+benötigt, um das Gleichungssystem mit einer vorhanden LU-Zerlegung zu lösen.
+
+Der Aufwand der Vorwärts- und Rückwärtsauflösung entspricht gerade dem Aufwand
+einer Matrix-Vektormultiplikation (wie $A^{-1}b$). Die $LU$-Zerlegung ist also
+numerisch ``genau so viel wert'' wie die Inverse der Matrix, aber viel
+billiger (mit weniger Rechenaufwand) zu bestimmen. Deshalb wird in der Numerik
+``fast nie'' die Inverse einer Matrix bestimmt, um ein Gleichungssystem zu lösen.
+
+Nun stellt sich natürlich die Frage, wann die LU-Zerlegung überhaupt existiert.
+
+\begin{prop}
+\label{prop:2.2}
+Sei $A\in\R^{n\times n}$. Dann gilt: Die LU-Zerlegung von $A$ existiert und ist
+eindeutig genau dann wenn die Hauptuntermatrizen $A_m := (a_{ij})_{i,j=1}^m$
+regulär sind für $m=1,2,\ldots,n-1$.\fishhere
+\end{prop}%TODO: Sollte m=n nicht auch regulär sein?
+\begin{proof}
+Induktion über $n$.
+
+\textit{Induktionsanfang $n=1$.} $A=(a_{11})$ mit der $LU$-Zerlegung =
+$\underbrace{(1)}_{L}\underbrace{(a_{11})}_{U}$.
+
+\textit{Induktionsschritt $n-1\Rightarrow n$.} Setze,
+\begin{align*}
+A=\begin{pmatrix}
+A_{n-1} & c\\
+d^\top & a_{nn}
+\end{pmatrix},
+\quad\text{mit}\quad A_{n-1}\in\R^{n-1\times n-1}, c,d\in\R^{n-1}, a_{nn}\in\R.
+\end{align*}
+Ansatz für die $LU$-Zerlegung:
+\begin{align*}
+&L =
+\begin{pmatrix}
+L_{n-1} & 0\\
+l^\top & 1 
+\end{pmatrix},
+\quad\text{mit}\quad L_{n-1}\in\R^{n-1\times n-1}, l\in\R^{n-1},\\
+&U =
+\begin{pmatrix}
+U_{n-1} & u\\
+0 & u_{nn}
+\end{pmatrix},
+\quad\text{mit}\quad U_{n-1}\in\R^{n-1\times n-1}, u\in\R^{n-1}
+\end{align*}
+Wir zeigen nun, dass $A=LU$
+\begin{align*}
+&\begin{pmatrix}
+A_{n-1} & c\\
+d^\top & a_{nn}
+\end{pmatrix}
+= \begin{pmatrix}
+L_{n-1} & 0\\
+l^\top & 1 
+\end{pmatrix}
+\begin{pmatrix}
+U_{n-1} & u\\
+0 & u_{nn}
+\end{pmatrix}
+\end{align*}
+äquivalent ist zu,
+\begin{align*}
+\begin{cases}
+A_{n-1} = L_{n-1}U_{n-1}\\
+L_{n-1}u + 0\cdot u_{nn} = c\\
+d^\top = l^\top\cdot U_{n-1} \Leftrightarrow U_{n-1}^\top l = d\\
+a_{nn} = l^\top u + u_{nn}
+\end{cases}
+\end{align*}
+
+``$\Leftarrow$'': Wir wenden die Induktionsvoraussetzung auf $A_{n-1}$ an, also
+existieren $L_{n-1}$ und $U_{n-1}$ und sind eindeutig. $A_{n-1}$ ist regulär
+also gilt,
+\begin{align*}
+0 \neq \det(A_{n-1}) = \det(L_{n-1})\det(U_{n-1}),
+\end{align*}
+und daher sind $L_{n-1}$ und $U_{n-1}$ regulär. Damit existieren auch,
+\begin{align*}
+u = L_{n-1}^{-1}c,\qquad l = (U_{n-1}^\top)^{-1}d,
+\end{align*}
+und sind eindeutig und daher existiert auch $u_{nn} = a_{nn}-l^\top u$ und ist
+eindeutig.
+
+``$\Rightarrow$'': $A=LU$
+existiert und ist eindeutig, also existiert auch $A_{n-1}=L_{n-1}U_{n-1}$ und
+ist eindeutig. Falls $L_{n-1}$ oder $U_{n-1}$ nicht regulär ist, dann hätten
+$L_{n-1}$ oder $U_{n-1}^\bot l = d$ keine eindeutige Lösung.
+
+Dann würde die LU-Zerlegung von $A$ nicht existieren bzw. wäre nicht eindeutig.
+Also wären $L_{n-1}$ oder $U_{n-1}$ nicht regulär und daher gilt,
+\begin{align*}
+\det A_{n-1} = (\det L_{n-1})(\det U_{n-1})\neq 0.
+\end{align*}
+Anwendung der Induktionsvoraussetzung auf $A_{n-1}$ ergibt,
+$A_1,\ldots,A_{n-1}$ sind regulär.\qedhere
+\end{proof}
+
+\begin{defnn}
+Eine Matrix $A$ heißt \emph{positiv definit}, falls $x^\bot A x \ge 0$,
+$\forall x\in\R^n$ und $x^\bot Ax = 0\Leftrightarrow x = 0$.\fishhere
+\end{defnn}
+
+\begin{corn}
+Für eine positiv definite Matrix $A\in\R^{n\times n}$ existiert eine eindeutige
+LU-Zerlegung.\fishhere
+\end{corn}
+
+\subsection{Pivotisierung}
+Bisher haben wir stets angenommen, dass bei der Gauß-Elimination bzw. der
+LU-Zerlegung alle auf der Diagonalen auftretenden Einträge von Null verschieden
+sind. Unser bisher entwickelter Algorithmus zur Gauß-Eliminitation bzw. LU-Zerlegung
+funktionieriert nicht, falls eines der Diagonalenelemente $a_{ii}^{(i-1)}$ der
+Matrix $A^{(i-1)}$ nach dem $i-1$-ten Schritt Null ist. Nun kann dies aber auch
+bei invertierbaren Matrizen passieren. Ein Beispiel,
+\begin{align*}
+A=\begin{pmatrix}
+0 & 1\\ 1 & 0
+\end{pmatrix}.
+\end{align*}
+Hier würde unser Algorithmus bereits im ersten Schritt versagen.
+Beim Rechnen mit Fließkommazahlen der Fall $a_{ii}^{(i-1)}=0$ ``fast nie'' auf.
+Viel häufiger sind Probleme, die von betragsmäßig sehr kleinen
+Diagonalenelementen verursacht werden. Da alle Rechenoperationen mit
+Rundungsfehlern behaftet sind, erhält man anstatt einer exakten Null lediglich
+Werte nahe bei Null. Eine singuläre Matrix ist so meißt nach Anwendung einer einzigen
+Fließkommaoperation nicht mehr singulär. Darüber hinaus sind Operationen mit
+Zahlen nahe bei Null sehr fehlerbehaftet, weshalb wir daran interessiert sind,
+diese in unserem LU-Zerlegungsalgorithmus zu vermeiden.
+
+\begin{bspn}Lösung des Gleichungssystems mit 3 Stellen Genauigkeit,
+\begin{align*}
+\begin{pmatrix}
+10^{-3} & -1 \\ 1 & 2
+\end{pmatrix}x =
+\begin{pmatrix}
+-4 \\ 6
+\end{pmatrix}
+\end{align*}
+Wir erhalten als LU-Zerlegung,
+\begin{align*}
+A=\begin{pmatrix}
+10^{-3} & -1 \\ 1 & 2
+\end{pmatrix}=
+\begin{pmatrix}
+1 & 0\\ 1000 & 1
+\end{pmatrix}
+\begin{pmatrix}
+10^{-3} & -1 \\ 0 & \underbrace{1000}_{1002} 
+\end{pmatrix}.
+\end{align*}
+Durch Vorwärtsauflösen ergibt sich,
+\begin{align*}
+\begin{pmatrix}
+1 & 0 \\ 1000 & 1
+\end{pmatrix}y = 
+\begin{pmatrix}
+-4 \\ 6
+\end{pmatrix}
+\Rightarrow
+\begin{cases}
+y_1 = -4,\\
+y_2 = \underbrace{4010}_{=4006}.
+\end{cases}
+\end{align*}
+Durch Rückwärtssubstitution
+\begin{align*}
+\begin{pmatrix}
+10^{-3} & -1\\
+0 & 1000
+\end{pmatrix}x
+=\begin{pmatrix}
+ -4 \\ 4010
+ \end{pmatrix}
+\Rightarrow
+\begin{cases}
+x_2 = \frac{4010}{1000} = 4.01,\\
+x_1 = (-4 + 4.01)1000 = 10
+\end{cases}
+\end{align*}
+erhalten wir die numerische Lösung,
+\begin{align*}
+x = \begin{pmatrix}
+    10\\4.01
+    \end{pmatrix}.
+\end{align*}
+Durch Einsetzen in das Gleichungssystem ergibt,
+\begin{align*}
+Ax = \begin{pmatrix}
+10^{-3}\cdot10 - 1\cdot4.01\\
+1\cdot10 + 2 \cdot4.01
+\end{pmatrix}
+= \begin{pmatrix}
+-4 \\ 18.02
+\end{pmatrix}
+\neq
+\begin{pmatrix}
+-4 \\ 6
+\end{pmatrix}.
+\end{align*}
+Die exakte Lösung ist,
+\begin{align*}
+x = \begin{pmatrix}
+1.996\\
+3.998
+\end{pmatrix}.
+\end{align*}
+Der Fehler ist hier so fatal, da der Abstand von $10^{-3}$ und $1$ etwa der
+Rechengenauigkeit entspricht.\bsphere
+\end{bspn}
+
+Zur Lösung des Problems vertrauschen wir Zeilen.
+Im $i$-ten Schritt wählen wir eine \emph{Pivot-Zeile} $p\ge i$ mit der
+Eigenschaft, dass $\abs{a_{pi}}$ ``groß'' ist und vertauschen die aktuelle Zeile
+$i$ mit der Pivot-Zeile $p$. Um die Pivotzeile auszuwählen, gibt es zahlreiche
+``Strategien''. Wir wollen hier nur sehr einfache vorstellen.
+
+\begin{bemn}[Pivotisierungssatrategien.]
+\begin{enumerate}[label=\arabic{*}.)]
+  \item \emph{Spaltenmaximum}.
+
+Wähle $p$ so, dass $\abs{a_{pi}} \ge \abs{a_{ji}}\forall j\ge i$.
+\item \emph{Relatives Spaltenmaximum}.
+
+Wähle $p$ so, dass $\frac{\abs{a_{pi}}}{\sum_{j=i}^{n} \abs{a_{pj}}}$ in dieser
+Spalte maximal ist.
+\end{enumerate}
+\end{bemn}
+\textit{Algorithmus.}
+\begin{tabbing}
+\hspace{20pt}	Für $i=1,\ldots,n-1$.\\
+\hspace{40pt}		Bestimme einen Pivot-Index $p_i\in\{i,\ldots,n\}$.\\
+\hspace{40pt}		Falls $p_i\neq i$: Vertausche Zeilen $i$, $p$ (*)\\
+\hspace{40pt}		Für $j=i+1,\ldots,n$\\
+\hspace{60pt}			$a_{ji} = \dfrac{a_{ji}}{a_{ii}}$\\
+\hspace{60pt}			Für $k=i+1,\ldots,n$\\
+\hspace{80pt}				$a_{jk} = a_{jk}-a_{ji}a_{ik}$\\
+\end{tabbing}
+Der Algorithmus entspricht also dem bisherigen bis auf die Vertauschung der
+Zeilen.
+
+\begin{bemn}[Bemerkung zu (*).]
+Die Eliminiationsfaktoren $l_{jk}\entspr a_{jk}$ für $k< i$ werden
+ebenfalls vertauscht.\maphere
+\end{bemn}
+
+\begin{bspn}
+LU-Zerlegung mit Pivotisierung nach der relativen Spaltenmaximierungsstrategie.
+\begin{align*}
+\begin{pmatrix}
+1 & 1 & 0 & 2\\
+\frac{1}{2} & \frac{1}{2} & 2 & -1\\
+-1 & 0 & -\frac{1}{8} & -5\\
+2 & -6 & 9 & 12
+\end{pmatrix}
+{\color{darkblue}
+\begin{matrix}
+\frac{1}{4} \\ \frac{1}{8} \\ \frac{1}{6+\frac{1}{8}} \\ \frac{2}{29}
+\end{matrix}}
+&\rightarrow
+\begin{pmatrix}
+1 & 1 & 0 & 2\\
+\frac{1}{2} & 0 & 2 -2\\
+-1 & 1 & -\frac{1}{8} -3\\
+2 & - 8 & 9 & 8
+\end{pmatrix}
+{\color{darkblue}
+\begin{matrix}
+- \\ 0 \\ \frac{1}{4+\frac{1}{8}} \\ \frac{8}{25}
+\end{matrix}}\\
+&\rightarrow
+\begin{pmatrix}
+1 & 1 & 0 & 2\\
+2 & - 8 & 9 & 8\\
+-1 & -\frac{1}{8} & 1 &-2\\
+\frac{1}{2} & 0 & 2 & -2
+\end{pmatrix}
+{\color{darkblue}
+\begin{matrix}
+- \\ - \\ \frac{1}{3} \\ \frac{2}{4}
+\end{matrix}}\\
+&\rightarrow
+\begin{pmatrix}
+1 & 1 & 0 & 2\\
+2 & -8 & 9 & 8\\
+\frac{1}{2} & 0 & 2 & -2\\
+-1 & -\frac{1}{8} &\frac{1}{2} &-1
+\end{pmatrix}
+\end{align*}
+Der Vektor der Pivot Indizies ist gegeben durch $\vec{p} = (1, 4, 4)$.\bsphere
+\end{bspn}
+
+\begin{defn}
+Eine Matrix $A\in\R^{n\times n}$ heißt \emph{streng
+(zeilen)-diagonaldominant}, falls
+\begin{align*}
+\abs{a_{ii}} > \sum\limits_{j\neq i} \abs{a_{ij}}.\fishhere
+\end{align*}
+\end{defn}
+
+\begin{prop}
+\label{prop:2.4}
+Sei $A\in\R^{n\times n}$ streng diagonaldominant, sei
+\begin{align*}
+A^{(k)}
+= \begin{pmatrix}
+  a_{11} & \cdots & \cdots & \cdots & a_{1n}\\
+   & \ddots & & & \vdots \\
+   & & a_{kk}^{(k)} & \cdots & a_{kn}^{(k)}\\
+   & & \vdots & \ddots & \vdots \\
+   & & a_{nk}^{(k)} & \cdots & a_{nn}^{(k)}
+  \end{pmatrix}
+\end{align*}
+die nach $k-1$ Schritten der Gauß-Elimination erhaltene Matrix. Dann ist
+$A^{(k)}$ streng diagonaldominant.\fishhere
+\end{prop}
+\begin{proof}
+Wir zeigen die Aussage für $k=2$:
+Für $i=2,\ldots,n$ gilt:
+\begin{align*}
+&a_{i1}^{(2)}  = 0,\\
+&a_{ij}^{(2)}  = a_{ij}-\frac{a_{i1}}{a_{11}}a_{1j},\qquad j=2,\ldots,n\\
+\Rightarrow & \sum\limits_{j\neq i} \abs{a_{ij}^{(2)}} =
+\sum\limits_{\atop{j=2}{j\neq i}}^n \abs{a_{ij}^{(2)}} \le
+\sum\limits_{\atop{j=2}{j\neq i}}^n
+\abs{a_{ij}}+\abs{\frac{a_{i1}}{a_{11}}}\sum\limits_{\atop{j=2}{j\neq i}}^n
+\abs{a_{1j}}
+\\ &= \sum\limits_{\atop{j=1}{j\neq i}}^n
+\abs{a_{ij}}-\abs{a_{i1}}+\frac{\abs{a_{i1}}}{\abs{a_{11}}}
+\left(\sum\limits_{\atop{j=1}{j\neq i}}^n
+\abs{a_{1j}} -
+\abs{a_{1i}}\right) \\ &< \abs{a_{ii}}-\abs{a_{i1}} +
+\abs{\frac{a_{i1}}{a_{11}}}\left[\abs{a_{11}} - \abs{a_{1i}}\right]
+=  \abs{a_{ii}} - \frac{\abs{a_{i1}}\abs{a_{1i}}}{\abs{a_{11}}}
+\le \abs{a_{ii}^{(2)}} 
+\end{align*}
+Es gilt also,
+\begin{align*}
+\sum\limits_{\atop{j=1}{j\neq i}}^n \abs{a_{ij}^{(2)}} <
+\abs{a_{ii}^{(2)}},\qquad \text{für } i\ge 2.
+\end{align*}
+Der Gauß-Algorithmus verändert die erste Zeile nicht, also gilt die Ungleichung
+ebenso für $i=1$. Durch Induktion folgt, dass $A$ auch für $k>2$ streng
+diagonaldominant ist.\qedhere
+\end{proof}
+
+\begin{cor}
+\label{prop:2.5}
+Sei $A\in\R^{n\times m}$ streng diagonaldominant. Dann gilt:
+\begin{enumerate}[label=(\roman{*})]
+  \item\label{prop:2.5:1} Die $LU$-Zerlegung ist ohne Pivotisierung anwendbar.
+  \item\label{prop:2.5:2} Die relative Spaltenmaximumstrategie liefert sofort
+  das aktuelle Diagonalelement als Pivotelement.\fishhere
+\end{enumerate}
+\end{cor}
+\begin{proof}
+``\ref{prop:2.5:1}'': Mit der Notation von \ref{prop:2.4} gilt:
+\begin{align*}
+\abs{a_{kk}^{(k)}} > \sum\limits_{\atop{j=1}{j\neq k}}^n \abs{a_{kj}^{(k)}} \ge
+0 \Rightarrow a_{kk}^{(k)} \neq 0.
+\end{align*}
+``\ref{prop:2.5:2}'': Wir zeigen: Ist $A$ streng diagonaldominant, dann gilt
+\begin{align*}
+\frac{\abs{a_{ii}}}{\sum\limits_{j=1}^n \abs{a_{ij}}} >
+\frac{1}{2} > 
+\frac{\abs{a_{ki}}}{\sum\limits_{j=1}^n \abs{a_{kj}}}. 
+\end{align*} 
+Zunächst gilt:
+\begin{align*}
+\sum\limits_{l=1}^n \abs{a_{kl}} = \abs{a_{kk}} +
+\sum\limits_{\atop{l=1}{l\neq k}}^n \abs{a_{kl}}< 2 \abs{a_{kk}}
+\end{align*}
+und der erste Teil der Ungleichung ist gezeigt.
+Für $k\neq i$ gilt,
+\begin{align*}
+2\abs{a_{ki}} \le \abs{a_{ki}} + \abs{a_{kk}}
+\le \sum\limits_{l=1}^n \abs{a_{kl}}, 
+\end{align*}
+und damit ist der zweite Teil der Ungleichung gezeigt.
+
+Wir sehen also, dass die Spaltenmaximumstrategie bei Pivotisierung im
+$i$-ten Schritt immer die $i$-te Zeile aussucht, da hier das
+Zeilenmaximum vorliegt.\qedhere
+\end{proof}
+Die Vertauschung zweier Zeilen $i,j$ einer Matrix $A\in\R^{n\times n}$ kann man
+darstellen durch,
+\begin{align*}
+A\to P_{(i,j)}A,\quad
+\text{mit}\quad
+\begin{pmatrix}
+  \ddots \\
+  & 1\\
+  & & 0 & & & & 1\\
+  & & & 1 \\
+  & & & & \ddots\\
+  & & & & & 1\\
+  & & 1 & & & & 0 \\
+  & & & & & & & 1 \\
+  & & & & & & & & \ddots
+\end{pmatrix}
+\end{align*}
+Die LU-Zerlegung mit Pivotisierung liefert
+\begin{itemize}
+  \item Einen Vektor $p=(p_i)_{i=1}^{n-1}\in\R^{n-1}$ von Pivot Indizes.
+  \item Die $LU$-Zerlegung der Matrix $PA$ mit der Eingabematrix $A$ und
+\begin{align*}
+P=P^{(n-1)}P^{(n-2)}\cdots P^{(1)},\quad\text{wobei  } P^{(i)} = P_{(i,p_i)}.
+\end{align*}
+\end{itemize}
+
+Wir wollen nun mit der entwickelten Theorie lineare Gleichungssysteme lösen.
+
+Statt $Ax = b$ löst man
+\begin{align*}
+PAx = Pb,\quad\text{bzw.}\quad LUx = Pb.
+\end{align*}
+\begin{bemn}[1. Schritt.]
+$LU$-Zerlegung mit Pivotisierung
+\begin{align*}
+p\in\R^{n-1}, PA = LU,
+\end{align*}
+\end{bemn}
+\begin{bemn}[2. Schritt.]
+Berechnung von $Pb : b\mapsto Pb$.
+\end{bemn}
+\begin{bemn}[3. Schritt.]
+Vorwärtssubstitution $Ly = Pb \Rightarrow y$.
+\end{bemn}
+\begin{bemn}[4. Schritt.]
+Rückwärtsauflösen $Ux = y \Rightarrow x$.
+\end{bemn}
+
+\textit{Algorithmus für 2. Schritt}
+\begin{tabbing}
+\hspace{20pt}	Für $i=1,\ldots,n-1$\\
+\hspace{40pt}		Falls $p_i\neq i$\\
+\hspace{60pt}			vertausche $b_i, b_{p_i}$	
+\end{tabbing}
+
+\subsection{Dünn besetzte Matrizen}
+\begin{defnn}
+Eine Matrix heißt \emph{dünn besetzt}, falls ``sehr viele'' Einträge der Matrix
+Null sind. Konkrekt bedeutet dies, es müssen so viele Einträge Null sein, dass
+es sich lohnt, dies auszunutzen.\fishhere
+\end{defnn}
+
+Diese Definition scheint nicht viel her zu geben, 
+trifft die Sache aber genau.
+Dünn besetzte Matritzen treten in vielen Anwendungen auf:
+\begin{itemize}
+  \item Netwerke (elektrische Netzwerke, elastische Stabwerke,
+  Rohrleitungsnetz).
+  \item Diskretisierungen von Differentialgleichungen.
+\end{itemize}
+Gerade die Diskretisierung von Differentialgleichungen erzeugt schon bei
+Systemen mit wenigen Gleichungen gigantische Matritzen, bei denen aber nur sehr
+wenige Einträge von Null verschieden sind. Daher sind dünn besetzte Matritzen
+ein wichtiger Spezialfall, der in vielen Algorithmen separat behandelt wird.
+Eine Herausforderung ist dabei zu erkennen, wann eine Matrix dünn besetzt ist,
+denn dies ist nicht so offensichtlich.
+
+ \begin{bemn}[Frage:] Wenn $A$ dünn
+besetzt ist, ist dann die $LU$-Zerlegung ebenfalls dünn besetzt?
+\end{bemn}
+\begin{bemn}[Antwort.]
+Leider nein!.
+\end{bemn}
+\begin{bspn} Eine ``dünn besetzte'' $4\times 4$-Matrix, die bereits nach dem 1.
+Schritt der LU-Zerlegung keinen Nicht-Null Eintrag mehr besitzt
+\begin{align*}
+\begin{pmatrix}
+1 & 2 & 3 & 4\\
+-1 & 0 & 0 & 0\\
+-1 & 0 & 1 & 0\\
+-1 & 0 & 0 & 1
+\end{pmatrix}
+\sim
+\begin{pmatrix}
+1 & 2 & 3 & 4\\
+-1 & 2 & 3 & 4\\
+-1 & 2 & 4 & 4\\
+-1 & 2 & 3 & 5
+\end{pmatrix}.\bsphere
+\end{align*}
+\end{bspn}
+
+\begin{bemn}[Frage:]
+Welche Nulleinträge einer Matrix bleiben bei der $LU$-Zerlegung erhalten?
+\end{bemn}
+\begin{bemn}[Antwort:]
+Die jeweils ersten Nulleinträge in einer Zeile bzw. Spalte bleiben erhalten.
+Dies gilt zunächst nur bei Zerlegung ohne Pivotisierung, mit unseren
+Pivotisierungssstrategien würde man auch diese Nulleinträge zerstört werden.
+Man kann aber Strategien entwicklen die das Auffüllen von Nichtnull Einträgen
+reduzieren.
+\begin{align*}
+\begin{pmatrix}
+*  & * & {\color{darkblue}0} & * & {\color{darkblue}0}\\
+{\color{darkblue}0}  & * & {\color{darkblue}0} & * & {\color{darkblue}0}\\
+{\color{darkblue}0}  & * & * &  & *\\
+*  &   &   & * & *\\
+{\color{darkblue}0}  & {\color{darkblue}0} & * &   & *   
+\end{pmatrix}
+\end{align*}
+Bei $LU$-Zerlegung erhaltene Nulleinträge sind blau.
+\end{bemn}
+
+\begin{defn}
+\label{defn:2.6}
+Die \emph{Hülle} einer Matrix $A\in\R^{n\times n}$ ist,
+\begin{align*}
+H(A) := \{1,\ldots,n\}^2 \setminus \setdef{(i,j)}{a_{ik}=0\text{ für
+}k=1,\ldots,i\text{ oder }a_{kj}=0\text{ für }k=1,\ldots,j}.\fishhere
+\end{align*}
+\end{defn}
+Die $LU$-Zerlegung vergrößert die Hülle einer Matrix nicht. Es genügt also die
+$LU$-Zerlegung ``auf der Hülle'' durchzuführen, wodurch sich unter Umständen
+sehr viel Rechenaufwand sparen lässt.
+
+\subsubsection{Bandmatritzen}
+
+Wir wollen nun eine einfache Klasse von dünn besetzten Matritzen untersuchen,
+die Bandmatritzen.
+
+\begin{defn}
+\label{defn:2.7}
+Eine Matrix $A\in\R^{n\times n}$ heißt \emph{Bandmatrix} mit
+\emph{Bandweite}
+\begin{align*}
+m=m_1+m_2+1,
+\end{align*}
+falls
+\begin{align*}
+a_{ij} = 0, \text{ für } j<i-m_1 \text{ oder }j>i+m_2.
+\end{align*}
+\begin{align*}
+\begin{pmatrix}
+* & * & \cdots & * & & 0 \\
+* & \ddots & \ddots &  &\ddots \\
+\vdots & \ddots& \ddots & \ddots & & *\\
+* &  & \ddots & \ddots &  \ddots & \vdots \\ 
+ & \ddots & & \ddots &  \ddots & * \\
+ 0 &  & * & \cdots & * & *
+\end{pmatrix}
+\end{align*}
+Als \emph{Band} von $A$ bezeichnet man
+\begin{align*}
+B(A) = \setdef{(i,j)\in\{1,\ldots,n\}^2}{i-m_1\le j\le i+m_2}
+\end{align*}
+Die $LU$-Zerlegung einer Bandmatrix ändert die Einträge außerhalb des Bandes
+nicht. Es genügt also die $LU$-Zerlegung auf dem Band durchzuführen.\fishhere
+\end{defn}
+
+Wir benötigen zunächst eine spezielle Datenstruktur zum Abspeichern von
+$A\in\R^{n\times n}$ in $\tilde{A}\in\R^{n\times m}$.
+\begin{align*}
+\begin{pmatrix}
+* & & * & 0\\
+  & \ddots &   	 & \ddots & 0 \\
+* & & \ddots &   	  & * \\
+0 & \ddots &  & \ddots & \\
+  & 0 & * & & * 
+\end{pmatrix}
+\sim
+\begin{pmatrix}
+0 & & * & \cdots & *\\
+ & \ddots & \vdots & & \vdots \\
+* & & \vdots & & \vdots\\
+\vdots & & \vdots & & *\\
+\vdots & & \vdots & \ddots \\
+* & \cdots & *
+\end{pmatrix}
+\end{align*}
+\begin{align*}
+&a_{ij} = \tilde{a}_{i,j + m_1 + 1-i}\\
+&\tilde{a}_{ij} = a_{i,j+i-m_1-1}
+\end{align*}
+Wir werden nun den bekannten Algorithmus für die LU-Zerlegung,
+
+\begin{tabbing}
+\hspace{20pt}	Für $i=1,\ldots,n-1$\\
+\hspace{40pt}		Für $j=i+1,\ldots,n$\\
+\hspace{60pt}			$a_{ji} = \dfrac{a_{ji}}{a_{ii}}$.\\
+\hspace{60pt}			Für $k=i+1,\ldots,n$\\
+\hspace{80pt}				$a_{jk}=a_{jk}-a_{ji}a_{ik}$.
+\end{tabbing}
+			
+modifizieren.
+
+\begin{tabbing}
+\hspace{20pt}	Für $i=1,\ldots,n-1$\\
+\hspace{40pt}		Für $j=i+1,\ldots,\min\{i+m_1,n\}$\\
+\hspace{60pt}			$\tilde{a}_{j,i+m_1-j+1} =
+				\dfrac{\tilde{a}_{j,i+m_1-j+1}}{\tilde{a}_{i,m_1+1}}$.\\
+\hspace{60pt}			Für $k=i+1,\ldots,\min\{i+m_2,n\}$\\
+\hspace{80pt}			
+$\tilde{a}_{j,k+m_1+1-j}=\tilde{a}_{j,k+m_1+1-j}-\tilde{a}_{j,i+m_1+1-j}\cdot
+\tilde{a}_{i,k+m_1+1-i}$.
+\end{tabbing}
+
+\begin{bemn}[Abschätzung des Rechenaufwands.]
+\begin{align*}
+\le \sum\limits_{i=1}^{n-1}\sum\limits_{j=i+1}^{i+m_1} (1+m_2) =
+(n-1)m_1(1+m_2)\approx n m_1 m_2.\maphere
+\end{align*}
+\end{bemn}
+
+\begin{bspn}
+$n=10.000$, $m_1=m_2 = 100$, d.h. $m=201$.\\
+\begin{tabular}[h]{ll}
+Standard $LU$-Zerlegung &  $\frac{1}{3}n^3 = \frac{1}{3}\cdot 10^{12}$.\\
+$LZ$-Zerlegung für Bandmatrix & $nm_1^2 = 10^8$.
+\end{tabular}\\
+Die $LU$-Zerlegung für Bandmatritzen ist um den Faktor $3\cdot 10^{-4}$
+schneller.\bsphere
+\end{bspn}
+
+\subsubsection{Lösung von Gleichungssystemen mit Bandmatritzen}
+
+Wir wollen nun die bestehenden Algorithmen für Vorwärts- und Rückwärtsauflösen
+an die neue Datenstruktur anpassen.
+\begin{align*}
+Ly = b,& \qquad Ux = y,
+\end{align*}
+\textit{Vorwärtsauflösen.}
+\begin{align*}
+\begin{pmatrix}
+1 & & \\
+* & \ddots \\
+\vdots & \ddots & \ddots \\
+* & \cdots & * & 1
+\end{pmatrix}
+y = b
+\end{align*}
+
+\begin{tabbing}
+\hspace{20pt}	$y_1 = b_1$\\
+\\
+\hspace{20pt}	Für $i=2,\ldots,n$\\
+\hspace{40pt}		$y_i = b_i - \sum\limits_{j=\max\{1,i-m_1\}}^{i-1}
+				     \tilde{a}_{i,j+m_1+1-i}\cdot y_j$\\
+\hspace{20pt}		
+\end{tabbing}
+
+\textit{Rückwärtsauflösen.}
+
+\begin{tabbing}
+\hspace{20pt}	$x_n = \dfrac{y_n}{\tilde{a}_{n,m_1+1}}$\\
+\\
+\hspace{20pt}	Für $i=n-1,\ldots,1$\\
+\hspace{40pt}		$x_i = \dfrac{1}{\tilde{a}_{i,m_1+1}}\left(y_i -
+\sum\limits_{j=i+1}^{\min\{n,i+m_2\}} \tilde{a}_{i,j+m_1+1-i}x_j \right)$\\
+\hspace{20pt}		
+\end{tabbing}
+
+
+\subsection{Matrixnormen}
+
+Dieser Abschnitt soll kurz die Elemente aus der Linearen Algebra und der
+Analysis wiederholen, die zur Definition von Matrixnormen notwendig sind.
+Mithilfe der Matrixnormen lassen sich beispielsweise Aussagen über
+Invertiertierbarkeit einer zu einem Gleichungssystem gehörenden Matrix und
+damit über die Lösbarkeit des Systems selbst machen. Wir werden davon später
+bei der Betrachtung der Fehlerfortpflanzung der LU-Zerlegung gebrauch machen.
+
+\begin{defn}
+\label{defn:2.8}
+Eine Abbildung $\norm{\cdot}: \R^n\to\R$, $x\mapsto \norm{x}$ heißt
+\emph{Norm}, falls
+\begin{enumerate}[label=(\roman{*})]
+  \item $\norm{x}\ge 0$ und $\norm{x}=0\Leftrightarrow x = 0$,\qquad
+  $\forall x\in\R^n$
+  \item $\norm{\alpha x}= \abs{\alpha}\norm{x}$,\qquad $\forall
+  x\in\R^n,\alpha\in\R$
+  \item $\norm{x+y}\le \norm{x}+\norm{y}$,\qquad $\forall x,y\in\R^n$.\fishhere
+\end{enumerate}
+\end{defn}
+
+\begin{bspn} Einige bereits wohl bekannte Normen,
+\begin{align*}
+&\norm{x}_2 = \left(\sum\limits_{j=1}^n x_j^2\right)^{\frac{1}{2}},\\
+&\norm{x}_\infty = \max\limits_{j=1,\ldots,n} \abs{x_j},\\
+&\norm{x}_1 = \sum\limits_{j=1}^n \abs{x_j}.\bsphere
+\end{align*}
+\end{bspn}
+
+\begin{prop}[Definition/Satz]
+\label{prop:2.9}
+Seien $\norm{\cdot}_n$ und $\norm{\cdot}_m$ Normen auf $\R^n$ und $\R^m$. Dann
+definiert,
+\begin{align*}
+\norm{A}_{n,m} := \max\limits_{\atop{x\in\R^m}{x\neq 0}}
+\frac{\norm{Ax}_n}{\norm{x}_m} = \max\limits_{\norm{x}_m=1}\norm{Ax}_n.
+\end{align*}
+eine Norm auf $\R^{n\times m}$, die so genannte \emph{Matrixnorm} bzw.
+\emph{Operatornorm}.\fishhere
+\end{prop}
+
+\begin{bspn}
+\begin{enumerate}[label=\arabic{*}.)]
+  \item 
+Die Matrixnorm für $\norm{\cdot}_1$-Norm in $\R^n$ und $\R^m$ ist die
+\emph{Spaltensummennorm},
+\begin{align*}
+\norm{A}_1 := \max\limits_{j=1,\ldots,m}\sum\limits_{i=1}^n\abs{a_{ij}}
+\end{align*}
+\begin{proof}
+Zu zeigen ist
+\begin{enumerate}[label=(\roman{*})]
+  \item $\norm{Ax}_1 \le \norm{A}_1\norm{x}_1$,\qquad $\forall x\in\R^m$,
+  \item $\exists x\in\R^m$ $\norm{Ax}_1=\norm{x}_1$.
+\end{enumerate}
+``(i)'':
+\begin{align*}
+\norm{Ax}_1 &= \sum\limits_{i=1}^n \abs{\sum\limits_{j=1}^m a_{ij} x_j}
+\le \sum\limits_{i=1}^n\sum\limits_{j=1}^m \abs{a_{ij}}\abs{x_j}
+= \sum\limits_{j=1}^m\left(\sum\limits_{i=1}^n \abs{a_{ij}}\right)\abs{x_j}\\ 
+& \le \max\limits_{j=1,\ldots,m} \sum\limits_{i=1}^n \abs{a_{ij}}
+\sum\limits_{j=1}^m \abs{x_j} = \norm{A}_1 \norm{x}_1.
+\end{align*}
+``(ii)'': Sei $j\in\setd{1,\ldots,n}$, so dass
+\begin{align*}
+\norm{A}_1 =\sum\limits_{i=1}^n\abs{a_{ij}}
+\end{align*}
+Für $x=e_j$ gilt,
+\begin{align*}
+\norm{Ae_j}_1 = \sum\limits_{i=1}^m \abs{(Ae_j)_i} = \sum\limits_{i=1}^m
+\abs{a_{ij}} = \norm{A}_1 = \norm{A}_1\norm{e_j}_1.\qedhere
+\end{align*}
+\end{proof}
+\item Die Matrixnorm für $\norm{\cdot}_\infty$-Norm ist die
+\emph{Zeilensummennorm},
+\begin{align*}
+\norm{A}_\infty := \max\limits_{i=1,\ldots,n} \sum\limits_{j=1}^m \abs{a_{ij}}.
+\end{align*}
+\begin{proof}
+Der Nachweis der Normeigenschaften ist eine gute Übung.\qedhere
+\end{proof}
+\item
+Die vielleicht interessanteste Norm ist die Matrixnorm zur euklidischen Norm in
+$\R^n$ und $\R^m$,
+\begin{align*}
+\norm{A}_2 := \max\limits_{\atop{x\in\R^m}{\norm{x}=1}} \norm{Ax}_2.
+\end{align*}
+Sie heißt \emph{Spektralnorm}. Im Folgenden wollen wir diese etwas genauer
+studieren.\bsphere
+\end{enumerate}
+\end{bspn}
+
+\begin{prop}
+\label{prop:2.10}
+\begin{enumerate}[label=(\roman{*})]
+  \item\label{prop:2.10:1} Für eine symmetrische, quadratische Matrix
+  $A\in\R^{n\times n}$ gilt,
+\begin{align*}
+\norm{A}_2 = \max\setdef{\abs{\lambda}}{\lambda\text{ ist Eigenwert von }A}.
+\end{align*}
+  \item\label{prop:2.10:2} Für eine allgemeine Matrix $A\in\R^{m\times n}$
+  gilt,
+\begin{align*}
+\norm{A}_2 = \max\setdef{\sqrt{\abs{\lambda}}}{\lambda\text{ ist Eigenwert von
+}A^\top A} = \sqrt{\norm{A^\top A}_2}.\fishhere
+\end{align*}
+\end{enumerate}
+\end{prop}
+\begin{proof}
+\begin{enumerate}[label=Zu (\roman{*})]
+\item $A$ ist symmetrisch, es existiert also eine
+Darstellung
+\begin{align*}
+A=Q\Lambda Q^\top
+\end{align*}
+mit einer orthogonalen Matrix $Q$, d.h. $Q\cdot Q^\top= \Id$ und
+\begin{align*}
+\Lambda = \begin{pmatrix}
+\lambda_1 & & \\
+& \ddots & \\
+&& \lambda_n
+\end{pmatrix}.
+\end{align*}
+Es gilt somit
+\begin{align*}
+\norm{Ax}_2 &= \norm{Q\Lambda Q^\top x}_2 = \norm{\Lambda \underbrace{Q^\top
+x}_{:=y}}_2
+= \left(\sum\limits_{i=1}^n \abs{\lambda_i y_i}^2\right)^{\frac{1}{2}}\\ 
+&\le \max\limits_{i=1,\ldots,n} \abs{\lambda_i} \norm{y}_2
+= \max\limits_{i=1,\ldots,n} \abs{\lambda_i} \norm{Q^\top x}_2
+= \max\limits_{i=1,\ldots,n} \abs{\lambda_i} \norm{x}_2
+\end{align*}
+Wobei wir verwendet haben, dass orthogonale Matritzen die euklidische Norm
+erhalten,
+\begin{align*}
+\norm{Qy}_2^2 = \lin{Qy,Qy} = \lin{y,Q^\top Qy} = \lin{y,y} = \norm{y}_2^2.
+\end{align*}
+Für $x=Q e_j$ gilt
+\begin{align*}
+&\norm{Ax}_2 = \norm{Q\Lambda Q^\top Q e_j}_2 = \norm{\Lambda e_j}_2 =
+\abs{\lambda_j},\\
+&\norm{A}_2 \ge \abs{\lambda_j} \forall j=1,\ldots,n\\
+&\norm{A}_2 \ge \max\limits_{j=1,\ldots,n} \abs{\lambda_j}
+\end{align*}
+\item 
+\begin{align*}
+\norm{Ax}_2^2 &= \lin{Ax,Ax} = \lin{x,A^\top Ax}
+\overset{\ref{prop:2.10:1}}{\le} \norm{x}_2\norm{A^\top Ax}_2\\
+&\le \norm{x}_2 \norm{A^\top A}_2\norm{x}_2,\\
+\Rightarrow \norm{Ax}_2 &\le \sqrt{\norm{A^\bot A}_2}\norm{x}_2,\\
+\Rightarrow \norm{A}_2 &\le \sqrt{\norm{A^\bot A}_2}.
+\end{align*}
+Sei $x$ Eigenvektor von $A^\top A$ zum maximalen Eigenwert
+$\lambda_\text{\tiny max}$.
+\begin{align*}
+&\Rightarrow \norm{Ax}_2^2 = \lin{x,A^\top Ax} = \lin{x,\lambda_\text{\tiny max}
+x} = \lambda_\text{\tiny max} \norm{x}_2^2\\
+&\Rightarrow \norm{Ax}_2 = \sqrt{\lambda_\text{\tiny max}}\norm{x}_2
+\overset{\text{\ref{prop:2.10:1}}}{=} \sqrt{\norm{A^\top A}_2}\norm{x}_2\\
+&\Rightarrow \norm{A}_2\ge \sqrt{\norm{A^\top A}_2}
+\end{align*}
+Wir haben damit das Ergebnis
+\begin{align*}
+\norm{A}_2 = \sqrt{\norm{A^\top A}_2}.\qedhere
+\end{align*}
+\end{enumerate}
+\end{proof}
+
+\subsection{Fehlerfortpflanzung}
+Wir wollen nun die Fehlerfortpflanzung bei der Lösung von
+linearen Gleichungssystemen mit den bisher entwickelten Methoden betrachten.
+
+Gegeben sei ein exaktes lineares Gleichungssystem
+\begin{align*}
+Ax = b \tag{2}
+\end{align*}
+mit $A\in\R^{n\times n}$ invertierbar und eine numerische Realisierung
+\begin{align*}
+\tilde{A}\tilde{x} = \tilde{b},
+\end{align*}
+mit den Fehlern
+\begin{align*}
+\Delta A = \tilde{A}-A,\quad \Delta b = \tilde{b}- b,\quad \Delta x
+=\tilde{x}-x.
+\end{align*}
+Ziel ist es nun den relativen Fehler von $x$ abzuschätzen 
+\begin{align*}
+\frac{\norm{\Delta x}}{\norm{x}} \text{ durch } \frac{\norm{\Delta b}}{\norm{b}}
+\text{ und } \frac{\norm{\Delta A}}{\norm{A}}.
+\end{align*}
+Um überhaupt eine Abschätzung durchführen zu können, müssen wir $\tilde{A}$ als
+invertierbar annehmen, die Störung von $A$ darf also nicht so groß sein, dass
+die numerische Realisierung nicht mehr lösbar ist.
+
+Wir können die Realisierung wie folgt umformen,
+\begin{align*}
+&\tilde{A}\tilde{x} = (A+\Delta A)(x+\Delta x) = Ax+\Delta Ax + (A+\Delta
+A)\Delta x = \tilde{b} = b+\Delta b,\\
+\Leftrightarrow & (A+\Delta A)\Delta x = \Delta b - \Delta A x\\
+\Leftrightarrow & \Delta x = (A+\Delta A)^{-1}(\Delta b - \Delta Ax)\\
+\Rightarrow &\frac{\norm{\Delta x}}{\norm{x}} \le \frac{\norm{(A+\Delta
+A)^{-1}}\left(\norm{\Delta b}+\norm{\Delta A}\norm{x}\right)}{\norm{x}}\\
+&= \norm{(A+\Delta A)^{-1}}\left(\frac{\norm{\Delta b}}{\norm{x}} +
+\norm{\Delta A}\right) \\
+&= \norm{(A+\Delta A)^{-1}}\norm{A}\left(\frac{\norm{\Delta
+b}}{\norm{A}\norm{x}} + \frac{\norm{\Delta A}}{\norm{A}}\right)
+\end{align*}
+Mit $\norm{b} = \norm{Ax} \le \norm{A}\norm{x}$ folgt
+\begin{align*}
+\frac{\norm{\Delta x}}{\norm{x}}
+\le \norm{(A+\Delta A)^{-1}}\norm{A}\left(\frac{\norm{\Delta
+b}}{\norm{b}} + \frac{\norm{\Delta A}}{\norm{A}}\right)\tag{4}
+\end{align*}
+
+\begin{prop}
+\label{prop:2.11}
+Seien $A,B\in\R^{n\times n}$ und $A$ invertierbar, sowie
+\begin{align*}
+\norm{A^{-1}}\norm{B} < 1,\quad\text{für eine beliebige aber feste Norm
+$\norm{\cdot}$}.
+\end{align*}
+Dann ist $A+B$ invertierbar und
+\begin{align*}
+\norm{(A+B)^{-1}} = \frac{\norm{A^{-1}}}{1-\norm{A^{-1}}\norm{B}}.\fishhere
+\end{align*}
+\end{prop}
+\begin{proof}
+Wir addieren Null geschickt und erhalten so,
+\begin{align*}
+&x = A^{-1}(A+B)x - A^{-1}Bx,\\
+\Rightarrow & \norm{x} \le \norm{A^{-1}}\norm{(A+B)x} +
+\norm{A^{-1}}\norm{B}\norm{x},\\
+\Rightarrow & \underbrace{(1-\norm{A^{-1}}\norm{B})}_{>0}\norm{x} \le
+\norm{A^{-1}}\norm{(A+B)x}.
+\end{align*}
+Für $x\in\ker(A+B)$ also $(A+B)x = 0$ folgt $\norm{x}=0$, d.h. $\ker(A+B)=(0)$
+und daher ist $A+B$ invertierbar.
+
+Für $y\in\R^n$ und $x=(A+B)^{-1}y$ folgt,
+\begin{align*}
+&\norm{(A+B)^{-1}y} \le \frac{\norm{A^{-1}}}{1-\norm{A^{-1}}\norm{B}}\norm{y},\\
+\Rightarrow & \norm{(A+B)^{-1}} \le
+\frac{\norm{A^{-1}}}{1-\norm{A^{-1}}\norm{B}}\qedhere
+\end{align*}
+\end{proof}
+
+Mit \ref{prop:2.11} folgt aus (4) im Fall $\norm{A^{-1}}\norm{\Delta A} < 1$,
+\begin{align*}
+\frac{\norm{\Delta x}}{\norm{x}}
+&\le \frac{\norm{A^{-1}}\norm{A}}{1-\norm{A^{-1}}\norm{\Delta A}}
+\left(\frac{\norm{\Delta b}}{\norm{b}} + \frac{\norm{\Delta
+A}}{\norm{A}}\right)\\
+&= \frac{\norm{A^{-1}}\norm{A}}{1-\norm{A^{-1}}\norm{A}\frac{\norm{\Delta
+A}}{\norm{A}}}\left(\frac{\norm{\Delta b}}{\norm{b}} + \frac{\norm{\Delta
+A}}{\norm{A}}\right).
+\end{align*}
+
+\begin{defn}
+\label{defn:2.12}
+Sei $A\in\R^{n\times n}$ invertierbar. Die Zahl
+\begin{align*}
+\kappa(A) = \norm{A^{-1}}\norm{A},
+\end{align*}
+heißt \emph{Konditionszahl} von $A$ bezüglich der Matrixnorm
+$\norm{\cdot}$.\fishhere
+\end{defn}
+Der folgende Satz fasst unsere Abschätzung des Fehlers zusammen. 
+\begin{prop}
+\label{prop:2.13}
+Sei $A\in\R^{n\times n}$ invertierbar, $b\in\R^n$, $b\neq 0$ und
+$\norm{A^{-1}}\norm{\Delta A} <1$. Dann gilt für die Lösung $\tilde{x} = x +
+\Delta x$ von (2) die Fehlerabschätzung,
+\begin{align*}
+\frac{\norm{\Delta x}}{\norm{x}}
+\le
+\frac{\kappa(A)}{1-\kappa(A)\frac{\norm{\Delta
+A}}{\norm{A}}}\left(\frac{\norm{\Delta b}}{\norm{b}} + \frac{\norm{\Delta
+A}}{\norm{A}}\right).\fishhere
+\end{align*}
+\end{prop}
+
+\begin{bemn}[Bemerkungen.]
+\begin{enumerate}[label=\arabic{*}.)]
+\item Die Bedingung $\norm{A^{-1}}\norm{\Delta A} < 1$ ist identisch zu
+\begin{align*}
+\kappa(A)\frac{\norm{\Delta A}}{\norm{A}} < 1.
+\end{align*}
+Wir sehen also dass der relative Fehler von $A$ klein sein muss, denn sonst ist
+das Gleichungssystem nicht mehr lösbar.
+\item Für $\kappa(A)\frac{\norm{\Delta A}}{\norm{A}} << 1$ ist der
+Verstärkungsfaktor des relativen Fehlers im wesentlichen die Konditionszahl.
+\item Für $\kappa(A)\frac{\norm{\Delta A}}{\norm{A}}\ge 1$ bzw. etwa $1$
+%TODO: \ge mit unten ein Tilde
+ist die Lösung $\tilde{x}$ des Systems in der Regel sehr schlecht.\maphere 
+\end{enumerate}
+\end{bemn}
+Gleichungssysteme mit kleiner Konditionszahl sind numerisch gut lösbar,
+während Systeme mit Konditionszahl auch bei ``guten Daten'' Probleme
+hervorrufen können. Die Trennung von lösbar und nicht lösbar ist daher nicht
+so ``scharf'' wie in der Linearen Algebra. Es kann sogar passieren, dass ein
+nicht lösbares Gleichungssystem mit numerischen Verfahren ``gelöst'' wird -
+diese ``Lösung'' ist dann aber zu nichts zu gebrauchen. Die Lösbarkeit ist in jedem
+Fall von der Qualtiät der Daten abhängig, während ein Gleichungssystem mit
+$\kappa(A) = \infty$ mit keinem numerischen Verfahren mehr lösbar ist.
+
+\subsection{Cholesky-Zerlegung}
+
+Wir werden nun eine weitere Lösungsmethode für Lineare Gleichungssysteme
+kennenlernen, die nur für positiv definite Matritzen funktioniert, jedoch
+deutlich geringeren Rechenaufwand aufweist.
+
+\begin{prop}
+\label{prop:2.14}
+Sei $A\in\R^{n\times n}$ symmetrisch und positiv definit, dann existiert eine
+eindeutige Zerlegung,
+\begin{align*}
+A = LL^\top,
+\end{align*}
+wobei $L\in\R^{n\times n}$ eine linke untere Dreiecksmatrix ist mit
+$l_{ii}>0$ für $i=1,\ldots,n$. Sie heißt \emph{Cholesky-Zerlegung}.\fishhere
+\end{prop}
+
+Zunächst wollen wir die Notwendigkeit der Bedingungen überprüfen. Die Symmetrie
+sieht man sofort, denn $(LL^\top)^\top = LL^\top$. Die positive Definitheit ist
+nicht so leicht einzusehen, wir werden auch später sehen, dass wir diese
+Voraussetzung noch etwas abschwächen können.
+
+\begin{proof}
+Wir führen eine Induktion über $n$.
+
+\textit{Induktionsanfang $n=1$.}
+$A=(a_{11}) = LL^\top$ mit $L=(\sqrt{a_{11}})$. $a_{11}>0$, da $A$ positiv
+definit.
+
+\textit{Induktionsschritt $n-1\to n$.}
+Sei dazu
+\begin{align*}
+A = \begin{pmatrix}
+A_{n-1} & a\\
+a^\top & a_{nn}
+\end{pmatrix},\qquad A_{n-1}\in R^{n-1\times n-1}, a\in\R^{n-1}, a_{nn}\in\R.
+\end{align*}
+Ansatz:
+\begin{align*}
+L = \begin{pmatrix}
+L_{n-1} & 0\\
+l^\top & \alpha
+\end{pmatrix},\qquad L_{n-1}\in R^{n-1\times n-1}, l\in\R^{n-1},
+\alpha\in\R.\tag{5}
+\end{align*}
+Durch (5) erhalten wir,
+\begin{align*}
+A&=\begin{pmatrix}
+A_{n-1} & a\\
+a^\top & a_{nn}
+\end{pmatrix}
+= \begin{pmatrix}
+L_{n-1} & 0\\
+l^\top & \alpha
+\end{pmatrix}
+\begin{pmatrix}
+L_{n-1}^\top & l\\
+0 & \alpha
+\end{pmatrix}\\
+\Leftrightarrow
+&A_{n-1} = L_{n-1}L_{n-1}\top\\
+&a = L_{n-1}l,\\
+&a^\top = l^\top L_{n-1}^\top\\
+&a_{nn}  = ll^\top + \alpha^2
+\end{align*}
+Können wir dieses Gleichungssystem eindeutig lösen, so existiert die Zerlegung
+und ist ebenfalls eindeutig.
+
+Die Induktionsvoraussetzung besagt, dass eine eindeutige linke untere
+Dreiecksmatrix $L_{n-1}$ existiert, sodass die erste Bedingung
+\begin{align*}
+&A_{n-1} = L_{n-1}L_{n-1}
+\end{align*}
+erfüllt ist.
+
+Die Gleichung $a=L_{n-1}l$ ist genau dann eindeutig nach $l$ auflösbar, wenn
+$L_{n-1}$ invertierbar ist. $L_{n-1}$ ist nach Voraussetzung eine untere Dreiecksmatrix,
+also invertierbar; man sieht dies auch durch $\det A = (\det L)^2$.
+
+Für $\alpha$ erhalten wir den Ausdruck,
+\begin{align*}
+\alpha = \sqrt{a_{nn}-\norm{l}^2}.
+\end{align*}
+Das negative Ergebnis der Wurzel können wir ignorieren, da wir nur an positiven
+Diagonaleinträgen interessiert sind. Da $A$ postiv definit ist auch
+$a_{nn} > 0$. Wir müssen jedoch zeigen, dass  $a_{nn}>\norm{l}^2$.
+
+Aus der positiven Definitheit von $A$ folgt,
+\begin{align*}
+0 &< 
+\lin{\begin{pmatrix}
+A_{n-1}^{-1} a\\
+-1
+\end{pmatrix},
+\begin{pmatrix}
+A_{n-1} & a\\
+a^\top & a_{nn}
+\end{pmatrix}
+\begin{pmatrix}
+A_{n-1}^{-1} a\\
+-1
+\end{pmatrix}}\\
+&=
+\begin{pmatrix}
+A_{n-1}^{-1} a\\
+-1
+\end{pmatrix}^\top
+\begin{pmatrix}
+a - a\\
+a^\top A_{n-1}^{-1} a - a_{nn}
+\end{pmatrix}
+= a_{nn} - a^\top A_{n-1}^{-1} a
+\end{align*}
+Mit
+\begin{align*}
+A_{n-1}^{-1} = (L_{n-1}L_{n-1})^\top = (L_{n-1}^\top)^{-1}L_{n-1}^{-1}
+\end{align*}
+folgt,
+\begin{align*}
+a^\top A_{n-1}^{-1} a = \underbrace{a^\top
+(L_{n-1}^{-1})^{\top}}_{l^\top}\underbrace{L_{n-1}^{-1}a}_{l} =
+\norm{l}^2.\qedhere
+\end{align*}
+\end{proof}
+
+\subsubsection{Berechnung der Cholesky-Zerlegung}
+Sei $A=LL^\top$ die Cholesky-Zerlegung von $A$, dann gilt
+\begin{align*}
+&a_{ji} = \sum\limits_{k=1}^n l_{ik}l_{kj}^\top = \sum\limits_{k=1}^n
+l_{ik}l_{jk} = \sum\limits_{k=1}^jl_{ik}l_{jk},\qquad i=1,\ldots,n\;
+j=1,\ldots,i
+\end{align*}
+da $l_{jk}=0$ für $k>j$. Zeilenweise Berechnung der $l_{ij}$:
+\begin{align*}
+&a_{11} = l_{11}^2 \Rightarrow l_{11} = \sqrt{a_{11}},\\
+&a_{21} = l_{21}l_{11} \Rightarrow l_{21} = \frac{a_{21}}{l_{11}},\\
+&a_{22} = l_{21}l_{21} + l_{22}l_{22} \Rightarrow l_{22} =
+\sqrt{a_{22}-l_{21}^2}
+\end{align*}
+Für die Zeile $i$ und $j=1,\ldots,i-1$ ergibt sich,
+\begin{align*}
+a_{ij} = \sum\limits_{k=1}^{j-1}l_{ik}l_{jk} + l_{ij}l_{jj}
+\end{align*}
+alle Koeffizienten mit Zeilenindex $<i$ bzw. Zeilenindex $i$ und Spaltenindex
+$<i$ sind bekannt, also gilt
+\begin{align*}
+l_{ij} = \frac{1}{l_{jj}}\left(a_{ij}-\sum\limits_{k=1}^{j-1}
+l_{ik}l_{jk}\right).
+\end{align*}
+\begin{align*}
+a_{ii} = \sum\limits_{k=1}^{l-1} l_{ik}^2 + l_{ii}^2
+\Rightarrow l_{ii} = \sqrt{a_{ii}- \sum\limits_{k=1}^{i-1}l_{ik}^2}.
+\end{align*}
+
+\textit{Algorithmus.}
+
+\begin{tabbing}
+\hspace{20pt}	$l_{11} = \sqrt{a_{11}}$\\
+\hspace{20pt}	Für $i=2,\ldots,n$\\
+\hspace{40pt}		Für $j=1,\ldots,i-1$\\
+\hspace{60pt}			$l_{ij} = \dfrac{1}{l_{jj}}\left(a_{ij}-\sum\limits_{k=1}^{j-1}
+l_{ik}l_{jk}\right)$\\
+\hspace{40pt}		$l_{ii} = \sqrt{a_{ii}- \sum\limits_{k=1}^{i-1}l_{ik}^2}$.
+\end{tabbing}
+
+\begin{bspn} Wir betrachten die symmetrische Matrix,
+\begin{align*}
+A = \begin{pmatrix}
+4 & 2 & -2\\
+2 & 10 & -7\\
+-2 & -7 & 6
+\end{pmatrix}.
+\end{align*}
+Die positive Definitheit ist nicht ganz offensichtlich, kann aber mithilfe der
+Determinanten berechnet werden. Die Cholesky-Zerlegung ergibt sich als,
+\begin{align*}
+L =
+\begin{pmatrix}
+2 & 0 & 0\\
+\frac{1}{2}2 & \sqrt{10 - 1^2} & 0\\
+-\frac{1}{2}2 & \frac{1}{3}(-7+1)&  \sqrt{6 - 1 - 4}
+\end{pmatrix}
+= \begin{pmatrix}
+  2 & 0 & 0\\
+  1 & 3 & 0\\
+ -1 & -2 & 1
+  \end{pmatrix}.\bsphere
+\end{align*}
+\end{bspn}
+
+\begin{bemn}[Rechenaufwand.]
+Die Wurzeln sind hier die aufwändigsten Rechenoperationen. Für jede Diagonale
+muss eine gezogen werden, die Anzahl ist daher $n$.
+
+Für die Multiplikationen ergibt sich,
+\begin{align*}
+&\sum\limits_{i=2}^n\sum\limits_{j=1}^{i-1} 1 + (j-1) + i-1
+= \sum\limits_{i=2}^n\sum\limits_{j=1}^{i-1} j + i-1
+= \sum\limits_{i=2}^n\frac{(i-1)i}{2} + i-1\\
+&= \sum\limits_{i=2}^n\frac{1}{2}i^2 + \frac{i}{2} -1= \frac{1}{2}\left(\frac{n(n+1)(2n+1)}{6} + \frac{n(n+1)}{2}\right) - n-1 -
+1\\
+&= \frac{1}{6}n^3 + \OO(n^2)
+\end{align*}
+Im Vergleich zum Gauß Algorithmus $\frac{1}{3}n^3$ haben wir hier
+$\frac{1}{6}n^3$. Die Wurzeln haben nur einfache Ordnung, also selbst wenn eine
+Wurzel dem 60-fachen Aufwand einer Multiplikationen entspricht, kann man sie
+bei hinreichend großen Matritzen vernachlässigen. Die Cholesky-Zerlegung
+entspricht daher für großes $n$ der Hälfte des Aufwands der $LU$-Zerlegung.
+\end{bemn}
+
+\subsubsection{Lösung von Linearen Gleichungssystemen}
+Gegeben sei ein Gleichungssystem
+\begin{align*}
+Ax = b,
+\end{align*}
+wobei $A\in\R^{n\times n}$ eine positiv definite symmetrische Matrix und
+$b\in\R^n$ ist.
+
+\begin{enumerate}[label=\arabic{*}. Schritt]
+  \item Cholesky Zerlegung $A=LL^\top$.
+  \item Vorwärtseinsetzen $Ly = b$.
+  \item Rückwärtsauflösen $L^\top x = y$. 
+\end{enumerate}
+
+\begin{bemn}[Bemerkungen.]
+\begin{enumerate}[label=\arabic{*}.)]
+  \item Es gibt eine Variante der Cholesky-Zerlegung für Bandmatritzen.
+  \item Pivotisierung ist möglich. Beim Vertauschen von einzelnen Zeilen und
+  Spalten kann die positive Definitheit bzw. die Symmetrie verloren gehen, man
+  muss daher Zeilen und Spalten vertauschen.\maphere
+\end{enumerate}
+\end{bemn}

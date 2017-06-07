@@ -1,0 +1,1286 @@
+\section{Interpolation}
+
+\begin{bemn}[Interpolationsaufgabe.]
+Gegeben sind die Datenpaare
+ $(x_i,y_i)$ für $i=0,\ldots,n$ und $x_i,y_i\in\R$.
+\begin{bspn}
+$x_i$ - Messpunkte,\quad
+$y_i$ - Messwerte.\bsphere
+\end{bspn} 
+Gesucht ist nun eine Funktion $f:\R\to\R$, die an den vorgegebenen Punkten
+$x_i$ die Werte $y_i$ annimmt,
+\begin{align*}
+f(x_i) = y_i,\qquad\text{für } i=0,\ldots,n.
+\end{align*}
+\end{bemn} 
+Die Aufgabe ist aber nicht wirklich sinnvoll formuliert, da unsere Anforderungen
+an die Funktion $f$ so gering sind, dass wir überabzählbar viele Lösungen angeben
+können. Im Folgenden wollen wir Anforderungen an die Funktion $f$
+erarbeiten, so dass das Problem eindeutig lösbar ist.
+
+\subsection{Polynominterpolation}
+
+Betrachten wir zunächst eine sehr einfache Klasse von Funktionen - die
+Polynome. Den Raum der Polynome vom Grad $\le n$ bezeichnen wir mit,
+\begin{align*}
+\PP_n:=\setdef{p:\R\to\R}{p(x)=\sum\limits_{j=0}^n a_j x^j,\; a_j\in\R}.
+\end{align*}
+$\PP_n$ ist ein Vektorraum der Dimension $n+1$.
+
+Wir können unsere Intperpolationsaufgabe also dahingehend einschränken, dass
+nur Polynome als Lösungen zugelassen sind. Konkret bedeutet dies, dass
+zu gegebenen Daten $(x_i,y_i)$, $i=0,\ldots,n$ ein Polynom $p\in\PP_n$ gesucht
+ist mit
+\begin{align*}
+p(x_i) = y_i,\qquad\text{für } i=0,\ldots,n.\tag{1}
+\end{align*}
+Als Lösungsansatz wählen wir den einfachst möglichen
+\begin{align*}
+p(x) = \sum\limits_{j=0}^n a_j x^j,
+\end{align*}
+mit unbekannten Koeffizienten $a_j\in\R$. Einsetzen in (1) ergibt,
+\begin{align*}
+\sum\limits_{j=0}^n a_j x_i^j = y_i,\qquad i=0,\ldots,n.
+\end{align*}
+Dies ist ein lineares Gleichungssystem für die unbekannten Koeffizienten
+$a_0,\ldots,a_n$. In Matrix-Vektor-Darstellung erhalten wir,
+\begin{align*}
+\underbrace{
+\begin{pmatrix}
+1 & x_0 & x_0^1 & x_0^2 & \cdots & x_0^n\\
+1 & x_1 & x_1^1 & x_1^2 & \cdots & x_1^n\\
+\vdots & \vdots & \vdots & \vdots & \ddots & \vdots\\
+1 & x_n & x_n^1 & x_n^2 & \cdots & x_n^n\\
+\end{pmatrix}
+}_{=M\in\R^{n+1\times n+1}}
+\underbrace{
+\begin{pmatrix}
+a_0 \\ \vdots \\ \vdots\\ a_n
+\end{pmatrix}
+}_{\in\R^{n+1}}
+=
+\underbrace{
+\begin{pmatrix}
+y_0\\ \vdots \\ \vdots \\ y_n
+\end{pmatrix}}_{\in\R^{n+1}}.
+\end{align*}
+Man kann zeigen, dass das Gleichungssystem lösbar ist, wenn die $x_i$ paarweise
+verschieden sind, d.h. falls $x_i\neq x_j$ für $i\neq j$ folgt $\det M\neq 0$.
+
+Mit der bereits entwickelten Theorie können wir eine Lösung berechnen. Die
+Polynominterpolation durch Lösung dieses Gleichungssystems hat jedoch den
+Nachteil, dass sie relativ aufwändig ist ($\OO(n^3)$). Es gibt bessere
+Methoden mit denen das Problem schneller lösbar ist.
+
+Als Basis des Matrizenraums haben wir die kanonische gewählt, 
+$\BB=\setd{1,x,x^2,\ldots}$. Wählt man hingegen eine an das Problem angepasste
+Basis, kann man den Aufwand zur Lösung erheblich reduzieren.
+
+\subsection{Lagrange-Interpolation}
+
+Wir wählen eine spezielle Basis,
+\begin{align*}
+\setd{L_0(x),\ldots,L_n(x)},\text{ mit } L_j(x_i) = \delta_{ij}.
+\end{align*}
+Die Basiselemente sind Polynome vom Grad $\le n$. Zu deren 
+Konstruktion wählen wir das Produkt der Nullstellen und normieren es,
+\begin{align*}
+L_j(x) = \frac{1}{\prod\limits_{\atop{k=0}{k\neq j}}^n (x_j-x_k)}
+ \prod\limits_{\atop{k=0}{k\neq j}}^n (x-x_k).
+\end{align*}
+Offensichtlich gilt $L_j(x_i) = \delta_{ji}$. Die Menge
+$\setd{L_0,\ldots,L_n}$ bildet eine Basis des $\PP_n$, denn
+ \begin{enumerate}[label=(\roman{*})]
+  \item $L_j\in\PP_n,\forall j=0,\ldots,n$.
+  \item $\dim\PP_n = n+1 = \card\setd{L_0,\ldots,L_n}$.
+  \item $\setd{L_0,\ldots,L_n}$ ist linear unabhängig, denn seien
+  $\lambda_0,\ldots,\lambda_n\in\R$ mit
+\begin{align*}
+\lambda_0L_0(x) + \ldots + \lambda_nL_n(x) = 0, \forall x\in\R,
+\end{align*} 
+so folgt für $x=x_i$, $\lambda_i = 0$.
+ \end{enumerate}
+Als Ansatz für das Interpolationspolynom wählen wir,
+\begin{align*}
+p(x) = \sum\limits_{j=0}^n c_j L_j(x).
+\end{align*}
+Einsetzen der Daten in $p$ ergibt,
+\begin{align*}
+&\sum\limits_{j=0}^n c_j L_j(x_i) = \sum\limits_{j=0}^n c_j \delta_{ij} = y_i\\
+\Rightarrow\; & c_i = y_i,\qquad i=0,\ldots,n.
+\end{align*}
+D.h. wir müssen das Interpolationspolynom nicht berechnen, sondern es ist
+sofort und eindeutig durch die Daten bestimmt.
+
+\begin{bemn}[Ergebnis.]
+Lagrange Darstellung des Interpolationspolynoms,
+\begin{align*}
+p(x) = \sum\limits_{j=0}^n y_j L_j(x),\text{ mit } L_j(x) = \frac{1}{\prod\limits_{\atop{k=0}{k\neq j}}^n (x_j-x_k)}
+ \prod\limits_{\atop{k=0}{k\neq j}}^n (x-x_k).\tag{2}
+\end{align*}
+Diese Darstellung ist für theoretische Zwecke sehr wichtig.\maphere
+\end{bemn}
+
+\addtocounter{prop}{1}
+\begin{cor}
+\label{prop:3.2}
+Seien $x_0,\ldots,x_n,y_0,\ldots,y_n\in\R$, $x_i\neq x_j$ für $i\neq j$. Dann
+hat die Interpolationsaufgabe,
+finde $p\in\PP_n$ mit
+\begin{align*}
+p(x_i) = y_i,\text{ für } i=0,\ldots,n,
+\end{align*}
+genau eine Lösung.\fishhere
+\end{cor}
+
+\begin{bspn}
+Sei $n = 2$ und folgende Daten gegeben,
+ 
+\begin{tabular}[h]{l|lll}
+$x_i$ & 1 & 2 & 3\\\hline
+$y_i$ & 2 & 3 & 6
+\end{tabular}
+
+Die Basiselemente haben die Form,
+\begin{align*}
+&L_0(x) = \frac{(x-2)(x-3)}{(1-2)(1-3)} = \frac{1}{2}(x-2)(x-3) =
+\frac{1}{2}\left( x^2 -5x + 6\right),\\
+&L_1(x) = \frac{(x-1)(x-3)}{(2-1)(2-3)} =
+-(x-1)(x-3)
+= -x^2 +4x-3,\\
+&L_2(x) = \frac{(x-1)(x-2)}{(3-1)(3-2)} = \frac{1}{2}(x-1)(x-2) =
+\frac{1}{2}\left(x^2 - 3x +2\right).
+\end{align*}
+Das Interpolationspolynom ist daher,
+\begin{align*}
+p(x) &= 2\frac{1}{2}\left(x^2-5x+6\right) + 3\left(-x^2+4x-3\right)
++ 6\frac{1}{2}\left(x^2-3x+2\right)\\
+&=x^2-2x+3.\bsphere
+\end{align*}
+\end{bspn}
+Der Vorteil dieser Methode ist, dass das Interpolationspolynom mit wenig
+Aufwand aufgestellt werden kann. Der Nachteil ist jedoch, dass die Auswertung
+sehr rechenintensiv ist.
+
+Die Lagrange-Interpolation ist komplementär zur Polynominterpolation in der
+kanonischen Basis, dort war die Berechnung des Interpolationspolynom aufwändig,
+seine Form erlaubt dagegen eine Auswertung mit wenig Aufwand.
+
+In Bezug auf den Rechenaufwand haben wir durch die Lagrange-Interpolation
+nichts gewonnen, sie ist jedoch aufgrund ihreres hohen theoretischen Werts sehr
+wichtig.
+
+\subsection{Newtonsche Interpolationsmethode} 
+
+Die Idee bei der Newtonschen Interpolationsmethode ist, eine Basis zu wählen,
+so dass sowohl das Aufstellen des Interpolationspolynoms sowie die Auswertung
+für $x\in\R$ schnell ist. Wir wählen dazu die spezielle Basis $(q_j)_{j=0}^{n}$
+\begin{align*}
+&q_0(x) = 1\\
+&q_1(x) = x-x_0\\
+&q_2(x) = (x-x_0)(x-x_1)\\
+&\vdots\\
+&q_n(x) = (x-x_0)\cdots(x-x_{n-1})
+\end{align*}
+bzw.
+\begin{align*}
+q_j(x) = \prod\limits_{k=0}^{j-1} (x-x_k),\qquad j=0,\ldots,n.\tag{3}
+\end{align*}
+Die Basiselemente haben eine gewisse Ähnlichkeit zu denen der
+Lagrange-Interpolation, es werden aber nur die ersten $j-1$ Nullstellen
+multipliziert. Für die Auswertung gilt,
+\begin{align*}
+q_j(x_i) = \begin{cases}
+0, & i<j\\
+\prod\limits_{k=0}^{j-1} (x_i-x_k), & i\ge j.
+\end{cases}
+\end{align*}
+Ansatz für das Interpolationspolynom,
+\begin{align*}
+p(x) = \sum\limits_{j=0}^n c_j q_j(x).
+\end{align*}
+Einsetzen in die Interpolationsbedingung ergibt,
+\begin{align*}
+&p(x_i) = y_i,\qquad i=0,\ldots,n\\
+\Rightarrow & c_0\cdot 1 &&= y_0,\\
+\Rightarrow & c_0\cdot 1 + c_1(x_1-x_0) &&= y_1,\\
+&\vdots\\
+\Rightarrow & c_0\cdot 1 + c_1(x_n-x_0) + \ldots +
+c_n(x_n-x_0)\cdots(x_n-x_{n-1}) &&= y_n.
+\end{align*}
+Wir erhalten also ein lineares Gleichungssystem für $c_0,\ldots,c_n$. In
+Matrix-Vektor-Schreibweise gilt
+\begin{align*}
+\underbrace{\begin{pmatrix}
+1 \\
+1 & q_1(x_1)\\
+1 & q_1(x_2) & q_2(x_2)\\
+\vdots & \vdots & \vdots & \ddots \\
+1 & q_1(x_n) & q_2(x_n) & \cdots & q_n(x_n)
+\end{pmatrix}}_{=M}
+\begin{pmatrix}
+c_0\\ \vdots \\c_n
+\end{pmatrix}
+=
+\begin{pmatrix}
+y_0\\ \vdots \\y_n
+\end{pmatrix}\tag{4}
+\end{align*}
+Im Fall $x_i\neq x_j$ für alle $i\neq j$ hat das Gleichungssystem eine
+eindeutige Lösung. Die Matrix $M$ ist eine linkere untere Dreiecksmatrix, man
+kann daher das Gleichungssystem ohne Gauß-Algorithmus einfach durch
+Vorwärtsauflösen lösen. Da die Polynome noch ``relativ schön'' sind, ist auch
+die Auswertung ``relativ günstig''.
+
+\begin{bspn}
+Sei $n=2$ mit den bekannten Daten.
+
+\begin{tabular}[h]{l|lll}
+$x_i$ & 1 & 2 & 3\\\hline
+$y_i$ & 2 & 3 & 6
+\end{tabular}
+
+Die Basiselemente sind,
+\begin{align*}
+&q_0(x) = 1,\\
+&q_1(x) = x-1,\\
+&q_2(x) = (x-1)(x-2).
+\end{align*}
+Das Gleichungssystem hat die Form,
+\begin{align*}
+&\begin{pmatrix}
+1 & 0 & 0\\
+1 & 1 & 0\\
+1 & 2 & 2
+\end{pmatrix}
+=
+\begin{pmatrix}
+2 \\ 3 \\ 6
+\end{pmatrix}.\\
+\Rightarrow & c_0 = 2,\quad c_1 = 3 - 1\cdot c_0 = 1,\quad c_2 =
+\frac{1}{2}(6-2-2) = 1\\
+\Rightarrow & p(x) = 2 + 1(x-1) + 1(x-1)(x-2) = x^2-2x+3
+\end{align*}
+Diese Rechnung ist für Computer jedoch immernoch mit erheblichem Rechenaufwand
+verbunden, der hauptsächlich durch das Aufstellen des Gleichungssystems und der
+damit verbunden Berechnung der Polynome $q_i(x)$ zustande kommt.\bsphere
+\end{bspn}
+
+Es gibt einen sehr effizienten Algorithmus zur Berechnung der $c_i$ aus (3),
+der auf folgender Rekursionsformel basiert.
+
+\begin{prop}
+\label{prop:3.3}
+Sei $p_{i,j}\in P_j$ das Interpolationspolynom zu den Daten
+\begin{align*}
+(x_k,y_k),\qquad \text{für }k=i,\ldots,i+j.
+\end{align*}
+Dann gilt
+\begin{align*}
+p_{i,j}(x) = \frac{(x - x_i)p_{i+1,j-1}(x) -
+(x-x_{i+j})p_{i,j-1}(x)}{x_{i+j}-x_i},\qquad \text{für } j\ge
+1.\fishhere\tag{5}
+\end{align*} %TODO: Bei Jeanine nachschauen
+\end{prop}
+\begin{proof}
+Wir müssen nachweisen, dass unsere Definition von $p_{i,j}(x)$ die
+Interpolationseigenschaften erfüllt.
+Es gilt:
+\begin{align*}
+&p_{i+1,j-1}(x_k) = y_k,&& \text{für } k = i+1,\ldots,i+j,\\
+&p_{i,j-1}(x_k) = y_k,&& \text{für } k = i,\ldots,i+j-1.
+\end{align*}
+Für $q(x) = p_{i,j}(x)$ folgt,
+\begin{align*}
+&q(x_i) = \frac{-(x_i-x_{i+j})p_{i,j-1}(x_i)}{x_{i+j}-x_i} = y_i,\\
+&q(x_{i+j}) = \frac{(x_{i+j}-x_{i})p_{i+1,j-1}(x_{i+j})}{x_{i+j}-x_i} = y_j
+\end{align*}
+Für $k=i+1,\ldots,i+j-1$ gilt,
+\begin{align*}
+q(x_k) &=
+\frac{(x_k-x_i)p_{i+1,j-1}(x_k)-(x_k-x_{i+j})p_{i,j-1}(x_k)}{x_{i+j}-x_i}\\
+&= \frac{(x_k-x_i)y_k - (x_k-x_{i+j})y_k}{x_{i+j}-x_i}\\
+&= \frac{(x_{i+j}-x_i)y_k}{x_{i+j}-x_i} = y_k.
+\end{align*}
+D.h. $q_{i,j}(x)$ ist das Interpolationspolynom.\qedhere
+\end{proof}
+
+Aus (5) und den Anfangspolynomen 
+\begin{align*}
+p_{i,0}(x) = y_i
+\end{align*}
+kann man durch folgendes Schema das Interpolationspolynom 
+\begin{align*}
+p(x) = p_{0,n}(x)
+\end{align*}
+zu den Daten $(x_0,y_0),\ldots,(x_n,y_n)$ bestimmen.
+
+%\begin{figure}[h]
+\begin{pspicture}(0,-1.5)(7.7,1.5)
+\rput(0.1565625,0.99046874){\color{gdarkgray}$x_0$}
+
+\rput(0.1565625,0.49046874){\color{gdarkgray}$x_1$}
+
+\rput(0.1565625,-0.00953125){\color{gdarkgray}$x_2$}
+
+\rput(0.1565625,-0.50953126){\color{gdarkgray}$\vdots$}
+
+\rput(0.1565625,-1.0095313){\color{gdarkgray}$x_n$}
+
+\rput(1.2395313,0.99046874){\color{gdarkgray}$p_{0,0} = y_0$}
+\rput(1.2395313,0.49046874){\color{gdarkgray}$p_{1,0} = y_1$}
+\rput(1.2395313,0.00953125){\color{gdarkgray}$p_{2,0} = y_2$}
+\rput(1.2395313,-1.0095313){\color{gdarkgray}$p_{n,0} = y_n$}
+
+\rput(3.4395313,0.99046874){\color{gdarkgray}$p_{0,1}$}
+
+\rput(3.4395313,0.49046874){\color{gdarkgray}$p_{1,1}$}
+
+\rput(3.4395313,-0.50953126){\color{gdarkgray}$p_{n-1,1}$}
+
+\rput(5.2146873,0.99046874){\color{gdarkgray}$\ldots$}
+
+\rput(6.9395313,0.99046874){\color{gdarkgray}$p_{0,n}$}
+
+\psline{->}(1.9753125,0.96046877)(2.6753125,0.96046877)
+\psline{->}(1.9753125,0.46046874)(2.6753125,0.7604687)
+\psline{->}(1.9753125,0.46046874)(2.6753125,0.46046874)
+\psline{->}(1.9753125,-0.03953125)(2.6753125,0.26046875)
+\psline{->}(1.9753125,-1.0395312)(2.6753125,-0.7395313)
+
+\psline{->}(4.1753125,0.96046877)(4.9753127,0.96046877)
+
+\psline{->}(5.4753127,0.96046877)(6.2753124,0.96046877)
+
+\psline{->}(4.1753125,0.46046874)(4.8753123,0.7604687)
+
+\psline[linestyle=dotted,dotsep=0.06cm]{->}(4.1753125,-0.2)(4.9753127,0.2)
+\psline[linestyle=dotted,dotsep=0.06cm]{->}(1.9753125,-0.50953126)(2.6753125,-0.50953126)
+\psline[linestyle=dotted,dotsep=0.06cm]{->}(5.4753127,0.35)(6.2753124,0.7)
+\end{pspicture} 
+%\caption{Schema der Rekursionsformel.}
+%\end{figure}
+
+Zur Bestimmung von $p_{i,j}$ werden also die Polynome $p_{i,j-1}$ und
+$p_{i+1,j-1}$ benötigt.
+
+\begin{bspn}
+Sei $n=2$ mit den bekannten Daten.
+
+\begin{tabular}[h]{l|lll}
+$x_i$ & 1 & 2 & 3\\\hline
+$y_i$ & 2 & 3 & 6
+\end{tabular}
+
+\begin{pspicture}(-0.2,-1)(10.6,1)
+
+\psline{->}(0.5578125,0.5782812)(1.1578125,0.5782812)
+\psline{->}(0.5578125,-0.02171875)(1.1578125,0.37828124)
+\psline{->}(0.5578125,-0.02171875)(1.1578125,-0.02171875)
+\psline{->}(0.5578125,-0.62171876)(1.1578125,-0.22171874)
+\psline{->}(4.7,0.5782812)(5.3,0.5782812)
+\psline{->}(4.7,-0.02171875)(5.3,0.37828124)
+
+\rput(0.0046875,0.5882813){\scriptsize  \color{gdarkgray}1}
+\rput(0.4046875,0.5882813){\scriptsize  \color{gdarkgray}2}
+
+\rput(0.0046875,-0.01171875){\scriptsize  \color{gdarkgray}2}
+\rput(0.4046875,-0.01171875){\scriptsize  \color{gdarkgray}3}
+
+\rput(0.0046875,-0.6117188){\scriptsize  \color{gdarkgray}3}
+\rput(0.4046875,-0.6117188){\scriptsize  \color{gdarkgray}6}
+
+\rput[l](1.3634375,0.5882813){\scriptsize  \color{gdarkgray}$\dfrac{(x-1)3-(x-2)2}{2-1}
+= x+1$}
+\rput[l](1.3634375,-0.21171875){\scriptsize  \color{gdarkgray}$\dfrac{(x-2)6-(x-3)3}{3-2}
+= 3x-3$}
+\rput[l](5.4,0.5882813){\scriptsize 
+\color{gdarkgray}$\dfrac{(x-1)(3x-3)-(x-3)(x+1)}{2} = x^2 -2x+3$}
+\end{pspicture}
+Das Interpolationspolynom ist gegeben durch $p(x) = x^2-2x+3$.\bsphere
+\end{bspn}
+Wie wir sehen ist unterscheidet sich das Verfahren im Rechenaufwand kaum vom
+vorherigen, wir können es aber durch eine kleine Modifikation deutlich
+vereinfachen.
+
+Newtonsche Darstellung des Interpolationspolynoms
+\begin{align*}
+p(x) = c_0 + c_1(x-x_0) + \ldots +
+c_n(x-x_0)\cdots(x-x_{n-1}).
+\end{align*}
+Darstellung von $p_{0,k}(x)$
+\begin{align*}
+p_{0,k}(x) = c_0 + c_1(x-x_0) + \ldots + c_k(x-x_0)\cdots(x-x_{k-1})
+\end{align*}
+\begin{bemn}[Wichtige Beobarchtung.]
+$c_k$ ist der Koeffizient am Term $x^k$
+der höchsten Ordnung von $p_{0,k}(x)$, welcher dem Koeffizent $c_k$ von $p$
+entspricht.\maphere
+\end{bemn}
+\begin{corn}
+Man kann alle $c_k$, $k=0,\ldots,n$ durch ein Rekursionsverfahren für die
+Koeffizienten $c_{ij}$ von $p_{i,i+j}$ am Term $x^j$ höchster Ordnung
+auszurechnen. Die Rekursionsformel ist gegeben durch,
+\begin{align*}
+c_{i,j} = \frac{c_{i+1,j-1} - c_{i,j-1}}{x_{i+j}-x_i}.
+\end{align*}
+Sie heißt \emph{Formel der dividierten Differenzen}. Startwerte sind
+\begin{align*}
+c_{i,0} = y_i,\qquad \text{für } i = 1,\ldots,n.\fishhere
+\end{align*} 
+\end{corn}
+
+
+\begin{figure}[htp]
+\begin{pspicture}(0,-1.1639062)(7.6225,1.1639062)
+\rput(0.1565625,0.99046874){\color{gdarkgray}$x_0$}
+
+\rput(0.1565625,0.49046874){\color{gdarkgray}$x_1$}
+
+\rput(0.1565625,-0.00953125){\color{gdarkgray}$x_2$}
+
+\rput(0.1565625,-0.50953126){\color{gdarkgray}$\vdots$}
+
+\rput(0.1565625,-1.0095313){\color{gdarkgray}$x_n$}
+
+\rput(1.2395313,0.99046874){\color{gdarkgray}$y_0$}
+\rput(1.2395313,0.49046874){\color{gdarkgray}$y_1$}
+\rput(1.2395313,0.00953125){\color{gdarkgray}$y_2$}
+\rput(1.2395313,-1.0095313){\color{gdarkgray}$y_n$}
+
+\rput(3.4395313,0.99046874){\color{gdarkgray}$c_{0,1}$}
+
+\rput(3.4395313,0.49046874){\color{gdarkgray}$c_{1,1}$}
+
+\rput(3.4395313,-0.50953126){\color{gdarkgray}$c_{n-1,1}$}
+
+\rput(5.2146873,0.99046874){\color{gdarkgray}$\ldots$}
+
+\rput(6.9395313,0.99046874){\color{gdarkgray}$c_{0,n}$}
+
+
+\psline{->}(1.9753125,0.96046877)(2.6753125,0.96046877)
+\psline{->}(1.9753125,0.46046874)(2.6753125,0.7604687)
+\psline{->}(1.9753125,0.46046874)(2.6753125,0.46046874)
+\psline{->}(1.9753125,-0.03953125)(2.6753125,0.26046875)
+\psline{->}(1.9753125,-1.0395312)(2.6753125,-0.7395313)
+
+\psline{->}(4.1753125,0.96046877)(4.9753127,0.96046877)
+
+\psline{->}(5.4753127,0.96046877)(6.2753124,0.96046877)
+
+\psline{->}(4.1753125,0.46046874)(4.8753123,0.7604687)
+
+
+\psline[linestyle=dotted,dotsep=0.06cm]{->}(4.1753125,-0.2)(4.9753127,0.2)
+\psline[linestyle=dotted,dotsep=0.06cm]{->}(1.9753125,-0.50953126)(2.6753125,-0.50953126)
+\psline[linestyle=dotted,dotsep=0.06cm]{->}(5.4753127,0.35)(6.2753124,0.7)
+\end{pspicture} 
+
+\caption{Schema der Rekursionsformel für die Koeffizenten.}
+\end{figure}
+
+Die Koeffizienten des Interpolationspolynoms sind $c_k = c_{0,k}$.
+
+\begin{bspn}
+
+\begin{tabular}[h]{l|lll}
+$x_i$ & 1 & 2 & 3\\\hline
+$y_i$ & 2 & 3 & 6
+\end{tabular}
+
+\begin{pspicture}(-0.2,-1)(4.4,1)
+
+\psline{->}(0.5578125,0.5782812)(1.1578125,0.5782812)
+\psline{->}(0.5578125,-0.02171875)(1.1578125,0.37828124)
+\psline{->}(0.5578125,-0.02171875)(1.1578125,-0.02171875)
+\psline{->}(0.5578125,-0.62171876)(1.1578125,-0.22171874)
+\psline{->}(2.5,0.5782812)(3.1,0.5782812)
+\psline{->}(2.5,-0.02171875)(3.1,0.37828124)
+
+\rput(0.0046875,0.5882813){\scriptsize  \color{gdarkgray}1}
+\rput(0.4046875,0.5882813){\scriptsize  \color{gdarkgray}2}
+
+\rput(0.0046875,-0.01171875){\scriptsize  \color{gdarkgray}2}
+\rput(0.4046875,-0.01171875){\scriptsize  \color{gdarkgray}3}
+
+\rput(0.0046875,-0.6117188){\scriptsize  \color{gdarkgray}3}
+\rput(0.4046875,-0.6117188){\scriptsize  \color{gdarkgray}6}
+
+\rput[l](1.3634375,0.5882813){\scriptsize \color{gdarkgray}$\dfrac{3-2}{2-1} =
+1$}
+\rput[l](1.3634375,-0.21171875){\scriptsize\color{gdarkgray}$\dfrac{6-3}{3-2} =
+3$} \rput[l](3.2,0.5882813){\scriptsize\color{gdarkgray}$\dfrac{3-1}{3-1} = 1$}
+\end{pspicture}
+
+Das Interpolationspolynom ist gegeben durch,
+\begin{align*}
+p(x) = 2 + 1(x-1) + 1(x-1)(x-2) = x^2-2x+3.\bsphere
+\end{align*}
+\end{bspn}
+
+Bei einer Implementierung wählt man als Parameter für Stufe $j$,
+\begin{align*}
+c_i := c_{i-j,j},\qquad i=j,\ldots,n
+\end{align*}
+D.h. man lässt bei Stufe $j$ die ersten $j$ Zeilen unverändert. Das macht auch
+Sinn, denn man benötigt diese Werte am Ende, um das Polynom aufzustellen.
+
+\textit{Algorithmus für die Newton-Interpolation.}
+
+\begin{tabbing}
+\hspace{20pt}	Für $i=0,\ldots,n$\\
+\hspace{40pt}		$c_i = y_i$\\	
+\hspace{20pt}	Für $j=1,\ldots,n$\\
+\hspace{40pt}		Für $i=n,n-1,\ldots,j$\\
+\hspace{60pt}			$c_i = \dfrac{c_i - c_{i-1}}{x_i -x_{i-j}}$\\
+\end{tabbing}
+Das Interpolationspolynom lautet dann,
+\begin{align*}
+p(x) = c_0 + c_1(x-x_0) + \ldots + c_n(x-x_0)(x-x_1)\cdots(x-x_{n-1}).
+\end{align*}
+
+\begin{bemn}[Rechenaufwand.] Wir berücksichtigen nur die Divisionen,
+\begin{align*}
+\sum\limits_{j=1}^n\sum\limits_{i=j}^n 1 = \sum\limits_{j=1}^n (n-j+1) = (n+1)n
+- \frac{n(n-1)}{2}=\frac{n(n-1)}{2}.\maphere
+\end{align*}
+\end{bemn}
+
+Polynom in Newton-Darstellung:
+\begin{align*}
+p(x) = c_0 + c_1(x-x_0) + \ldots + c_n(x-x_0)\cdots(x-x_{n-1})
+\end{align*}
+
+Zur effizienten Auswertung können wir das \emph{Horner-Schema} verwenden. Dieses
+beruht im Prinzip auf einer geschickten Klammerung des Polynoms.
+\begin{align*}
+p(x) = \bigg(\ldots\left(c_n(x-x_{n-1})+c_{n-1}\right) (x-x_{n-2}) +
+\ldots\bigg)+c_0.
+\end{align*}
+\begin{bspn} $n=3$
+\begin{align*}
+p(x) &= c_0 + c_1(x-x_0) + c_2(x-x_1)(x-x_0) + c_3(x-x_0)(x-x_1)(x-x_2)\\
+&= ((c_3(x-x_2)+c_2)(x-x_1)+c_1)(x-x_0) + c_0\bsphere
+\end{align*}
+\end{bspn}
+\textit{Algorithmus Horner-Schema.}
+
+\begin{tabbing}
+\hspace{20pt}	$p=c_n$\\
+\hspace{20pt}	Für $k=n-1,n-2,\ldots,0$\\
+\hspace{40pt}		$p = p(x-x_k)+c_k$\\
+\end{tabbing}
+
+\begin{bemn}[Rechenaufwand.]
+Im wesentlichen $n$ Multiplikationen.
+\end{bemn}
+
+Für Berechnungen von Hand wird folgendes Schema verwendet.
+\begin{align*}
+&c_{n-1} && c_{n-2} & \ldots\; & c_1 && c_0\\
+&x-x_{n-1} && x-x_{n-2} & \ldots\; & x-x_1 && x-x_0\\\hline
+c_n & y_{n-1} && y_{n-2} & \ldots\; & y_1 && y_0 & = p(x)
+\end{align*}
+Mit der Rechenvorschrift $y_k = y_{k+1}(x-x_k)+c_k$.
+
+\begin{bspn}
+\begin{align*}
+p(x) = 2 + 3x - x(x+2) + x(x+2)(x-1).
+\end{align*}
+Auswertung in $x=3$ ($n=3$)
+\begin{align*}
+&&-1 && 3 && 2\\
+&&(3-2) && (3+2) && 3\\\hline
+1\quad && 1 && 8 && 26 && =p(3)
+\end{align*}
+Wir sehen natürlich auch durch Einsetzen,
+\begin{align*}
+p(3) = 2 + 9 - 15 + 30 = 26.\bsphere
+\end{align*}
+\end{bspn}
+
+\subsection{Approximationseigenschaften}
+
+\begin{bemn}[Interpolationsaufgabe.]
+Finde $p\in \PP_n$ mit $p(x_i) = y_i$ für
+$i=0,\ldots,n$.
+\end{bemn}
+Wir wollen dazu annehmen, dass ein $f:\R\to\R$ existiert mit $y_i = f(x_i)$ 
+und $f$ hinreichend ``glatt''.
+
+\begin{bemn}[Frage:]
+Wie gut approximiert das Polynom $p$ die Funktion $f$?
+\end{bemn}
+
+\begin{prop}
+\label{prop:3.4}
+Sei $p\in\PP_n$ das Interpolationspolynom mit $p(x_i) = f(x_i)$, $i=0,\ldots,n$
+wobei $x_i\in\R\forall i$, $x_i\neq x_j$ für $i\neq j$ und $f\in C^{n+1}(\R)$.
+Dann gilt
+\begin{align*}
+\abs{p(x)-f(x)} =
+\frac{1}{(n+1)!}\abs{f^{n+1}(\xi)(x-x_0)(x-x_1)\cdots(x-x_n)}\tag{6}
+\end{align*}
+mit $\xi = \xi(x)\in\left[\min\setd{x,x_0,\ldots,x_n},
+\max\setd{x,x_0,\ldots,x_n}\right] $.\fishhere
+\end{prop}
+\begin{proof}
+Für $x=x_j$ mit $j\in\setd{0,\ldots,n}$ ist (6) erfüllt. Sei nun
+$x\neq\setd{x_0,\ldots,x_n}$. Sei
+\begin{align*}
+&\omega(x) = \prod\limits_{i=0}^n (x-x_i)\\
+&g(t) = f(t)-p(t) - \frac{\omega(t)}{\omega(x)}(f(x)-p(x)).
+\end{align*}
+Die Funktion $g$ hat die Nullstellen,
+\begin{align*}
+g(x) = 0,\quad g(x_j) = 0,\quad i=0,\ldots,n,
+\end{align*}
+d.h. $g$ hat $n+2$ verschiedene Nullstellen. Wenden wir den Satz von Rolle
+auf $g$ an, erhalten wir, dass $g'$ mindestens $n+1$ verschiedene Nullstellen
+hat. Iteration ergibt, dass $g^{(k)}$ mindestens $n-k+2$ verschiedene
+Nullstellen hat, $g^{(n+1)}$ hat somit mindestens eine Nullstelle
+$\xi\in[a,b]$.
+\begin{align*}
+&0 = g^{(n+1)}(\xi) = f^{(n+1)}(\xi)-p^{(n+1)}(\xi)
+- \frac{\omega^{(n+1)}(\xi)}{\omega(x)}(f(x)-p(x))\\
+\Rightarrow\;&0 = f^{(n+1)}(\xi) - \frac{(n+1)!}{\omega(x)}(f(x)-p(x))\\
+\Rightarrow\;& f(x)- p(x) = \frac{\omega(x)}{(n+1)!}f^{(n+1)}(\xi).\qedhere
+\end{align*} 
+\end{proof}
+
+\begin{bemn}[Problem.]
+Leider impliziert (6) nicht die Konvergenz des Interpolationspolynoms für
+$n\to\infty$,
+\begin{align*}
+\abs{p(x)-f(x)}\to 0,\qquad n\to\infty,
+\end{align*}
+denn $\abs{f^{(n+1)}(\xi)}$ kann schneller wachsen als 
+\begin{align*}
+\left(\frac{1}{(n+1)!}\abs{(x-x_0)\cdots(x-x_n)}\right)^{-1}.\maphere
+\end{align*}
+\end{bemn}
+In der Praxis kommt es häufig zu Oszillationen von $p$, vor allem nahe des
+Randes von $\left[\min\setd{x_0,\ldots,x_n},\max\setd{x_0,\ldots,x_n}\right]$.
+% f(x) = 1/(1+x^4)
+
+\subsection{Interpolation durch Splines}
+
+\begin{bemn}[Interpolationsaufgabe.]
+Finde eine Funktion
+\begin{align*}
+f: \R\to\R,\quad\text{mit }f(x_i)=y_i,\qquad i=0,\ldots,n,
+\end{align*}
+wobei $a=x_0<x_1<\ldots<x_n = b$.
+\end{bemn}
+
+\begin{defnn}[Konzept der Spline-Interpolation]
+Man bestimmt $n$ Polynome vom Grad $m$ mit $m<<n$ auf den Teilintervallen
+$[x_{i-1},x_i]$ für $i=1,\ldots,n$.\fishhere
+\end{defnn}
+
+\begin{figure}[!ht]
+  \centering
+\begin{pspicture}(-0.4,-1.2)(5,1.2)
+
+\psline{->}(-0.3,-0.62)(4.66,-0.62)
+\psline{->}(-0.1,-0.8)(-0.1,1.1)
+
+\psbezier[linecolor=yellow](0.1,-0.2)(0.18,0.32)(0.38,1.04)(1.12,1.02)(1.86,1.0)(2.02,-0.26)(2.78,-0.24)(3.54,-0.22)(3.24,0.34)(4.08,0.68)
+
+\psdots[linecolor=darkblue,dotstyle=x](0.12,-0.06)
+\psdots[linecolor=darkblue,dotstyle=x](0.7,0.92)
+\psdots[linecolor=darkblue,dotstyle=x](1.7,0.68)
+\psdots[linecolor=darkblue,dotstyle=x](2.7,-0.24)
+\psdots[linecolor=darkblue,dotstyle=x](3.44,0.16)
+\psdots[linecolor=darkblue,dotstyle=x](3.92,0.6)
+
+\psline(0.12,-0.78)(0.12,-0.52)
+\psline(0.7,-0.78)(0.7,-0.52)
+\psline(1.7,-0.78)(1.7,-0.52)
+\psline(2.7,-0.78)(2.7,-0.52)
+\psline(3.44,-0.78)(3.44,-0.52)
+\psline(3.92,-0.78)(3.92,-0.52)
+
+\rput(0.12,-0.93){\color{gdarkgray}\small$x_1$}
+\rput(0.7,-0.93){\color{gdarkgray}\small$x_2$}
+\rput(1.7,-0.93){\color{gdarkgray}\small$x_3$}
+\rput(2.7,-0.93){\color{gdarkgray}\small$x_4$}
+\rput(3.44,-0.93){\color{gdarkgray}\small$x_5$}
+\rput(3.92,-0.93){\color{gdarkgray}\small$x_6$}
+
+\rput(4.825625,-0.93){\color{gdarkgray}\small$x$}
+\end{pspicture} 
+  \caption{Spline-Interpolation.}
+\end{figure}
+
+\begin{defn}
+\label{defn:3.5}
+Eine Funktion $f:[a,b]\to\R$ mit $f\in C^{m-1}([a,b])$ und 
+\begin{align*}
+f\Big|_{[x_{i-1},x_i]} \in \PP_m,\qquad \text{für }i=1,\ldots,n,
+\end{align*}
+heißt \emph{Spline} der Ordnung $m$ zum Datensatz
+$X=(x_0,x_1,\ldots,x_n)$. Den Raum der Splines bezeichnen wir mit
+\begin{align*}
+S_m(X) = \setdef{f\in C^{m-1}([a,b])}{f\Big|_{[x_{i-1},x_i]} \in \PP_m,\text{
+für }i=1,\ldots,n,}.\fishhere
+\end{align*}
+\end{defn}
+
+Gegeben seien die Daten $(x_i,y_i)$, $i=0,\ldots,n$. Finde $s\in
+S^m(\setd{x_0,\ldots,x_m})$ mit
+\begin{align*}
+s(x_j) = y_j,\qquad \text{für } j=0,\ldots,n.
+\end{align*}
+
+Darstellung eines Splines
+\begin{align*}
+s(x) = p_j(x) = \sum\limits_{k=0}^m a_k^{(j)}x^k\quad\text{für
+}x\in[x_{j-1},x_j],\; j=1,\ldots,m.
+\end{align*}
+Anzahl der Koeffizienten $(m+1)n$. Die Bedingungen für die Spline-Interpolation
+sind
+\begin{align*}
+&p_j(x_j) = y_j,\quad p_j(x_{j-1}) = y_{j-1}\\
+&p_j^{(k)}(x_j) = p_{j-1}^{(k)}(x_j),\quad \text{für } j=1,\ldots,n-1,
+k=1,\ldots,m-1,
+\end{align*}
+wir haben somit $2n+(m-1)(n-1) = 2n+mn-m-n+1 = (m+1)n-m+1$ Bedingungen, das
+sind $m-1$ Bedingungen weniger als Koeffizienten. Für eine eindeutige Lösung
+benötigen wir daher zusätzliche Bedingungen. Eine übliche Wahl sind Bedingungen
+für die Ableitungen an den Endpunkten $x_0$, $x_n$.
+\begin{bspn}
+Lineare Splines ($m=1$). Das Interpolationspolynom hat somit die Darstellung,
+\begin{align*}
+s(x) = p_j(x) = a_jx + b_j,\qquad\text{für }x\in[x_{j-1},x_j].
+\end{align*}
+$p_j(x_j)=y_j$,\quad $p_j(x_{j-1}) = y_{j-1}$
+\begin{align*}
+p_j(x) = y_j\frac{x-x_{j-1}}{x_j-x_{j-1}} +
+y_{j-1}\frac{x-x_j}{x_{j-1}-x_j},\qquad j = 1,\ldots,n. 
+\end{align*}
+%TODO: lineare Interpolation 
+\begin{figure}[!ht]
+  \centering
+\begin{pspicture}(-0.4,-1.2)(5,1.2)
+
+\psline{->}(-0.3,-0.62)(4.66,-0.62)
+\psline{->}(-0.1,-0.8)(-0.1,1.1)
+
+\psdots[dotstyle=x](0.12,-0.06)
+\psdots[dotstyle=x](0.7,0.92)
+\psdots[dotstyle=x](1.7,0.68)
+\psdots[dotstyle=x](2.7,-0.24)
+\psdots[dotstyle=x](3.44,0.16)
+\psdots[dotstyle=x](3.92,0.6)
+
+\psline[linecolor=darkblue](0.12,-0.06)(0.7,0.92)(1.7,0.68)(2.7,-0.24)(3.44,0.16)(3.92,0.6)
+
+\psline(0.12,-0.78)(0.12,-0.52)
+\psline(0.7,-0.78)(0.7,-0.52)
+\psline(1.7,-0.78)(1.7,-0.52)
+\psline(2.7,-0.78)(2.7,-0.52)
+\psline(3.44,-0.78)(3.44,-0.52)
+\psline(3.92,-0.78)(3.92,-0.52)
+
+\rput(0.12,-0.93){\color{gdarkgray}\small$x_1$}
+\rput(0.7,-0.93){\color{gdarkgray}\small$x_2$}
+\rput(1.7,-0.93){\color{gdarkgray}\small$x_3$}
+\rput(2.7,-0.93){\color{gdarkgray}\small$x_4$}
+\rput(3.44,-0.93){\color{gdarkgray}\small$x_5$}
+\rput(3.92,-0.93){\color{gdarkgray}\small$x_6$}
+
+\rput(4.825625,-0.93){\color{gdarkgray}\small$x$}
+\end{pspicture} 
+  \caption{Interpolation durch lineare Splines.}
+\end{figure}
+\end{bspn}
+\begin{bspn}
+Kubische Splines ($m=3$).
+
+Die kubischen Splines sind ein sehr wichtiges Beispiel für Spline
+Interpolation. Oft wird in der Literatur auch von Splines geredet, während
+kubische Splines gemeint sind.
+
+Hier ist $m=3$, es fehlen also zwei Bedingungen. Es gibt nun zahlreiche
+Möglichkeiten, diese zu wählen.
+\begin{enumerate}[label=\arabic{*}.)]
+  \item Natürliche Splines.
+\begin{align*}
+p_1''(x_0) = 0,\quad p_n''(x_n) = 0,\tag{R1}
+\end{align*}
+d.h. keine Krümmung an den Endpunkten.
+\item Hermitsche Randbedingungen (Eingespannter Spline). Wähle
+$\alpha,\beta\in\R$,
+\begin{align*}
+p_1'(x_0) = \alpha, p_n'(x_n) = \beta.\tag{R2}
+\end{align*}
+\item Periodische Splines.
+\begin{align*}
+&p_1'(x_0) = p_n'(x_n)\tag{R3}\\
+&p_1''(x_0) = p_n''(x_n)
+\end{align*}
+Man erhält eine $C^2$-periodische Lösung. Dies macht natürlich nur Sinn, falls
+die Funktion an den Endpunkten den selben Wert annimmt.
+\end{enumerate}
+\end{bspn}
+
+\subsubsection{Berechnung von kubischen Splines}
+
+Wir wollen ein Verfahren zur Berechnung der kubischen Splines anhand von 
+natürlichen Splines erarbeiten.
+\begin{align*}
+p_1''(x_0) = 0,\quad p_n''(x_n) = 0.
+\end{align*}
+Wir wollen hier eine spezielle Darstellung wählen, die für die Berechnung
+jedoch äußerst geschickt ist,
+\begin{align*}
+s(x) = p_j(x) = a_j(x-x_{j-1})^3 + b_j(x-x_{j-1})^2 + c_j(x-x_{j-1}) + d_j,
+\end{align*}
+für $x\in[x_{j-1},x_j]$, $j=1,\ldots,n$.
+\begin{align*}
+&p_j(x_{j-1}) = y_{j-1},&& p_j(x_j) = y_j,&& j=1,\ldots,n\\
+&p_j'(x_j) = p_{j+1}'(x_j),&& p_j''(x_j) = p_{j+1}''(x_j),&&
+j=1,\ldots,n-1\\
+&p_1''(x_0) = 0,\; p_n''(x_n) = 0
+\end{align*}
+Es ist nicht effizient Gleichungssysteme für $a_j$, $b_j$, $c_j$ und $d_j$ zu
+bestimmen. Viel geschickter ist die Idee $M_j=s''(x_j)$,
+$j=0,\ldots,n$ als Variablen zu verwenden. Zusätzlich verwenden wir die Notation
+\begin{align*}
+h_j := x_j -x_{j-1}.
+\end{align*}
+Wir können $a_j$, $b_j$, $c_j$ und $d_j$ nun durch Differenzieren von $p_j$
+bestimmen,
+\begin{align*}
+&p_j''(x_{j-1}) = 2b_j := M_{j-1}\\
+&p_j''(x_j) = 6a_j h_j + 2b_j = M_j\\
+\Rightarrow & a_j = \frac{M_j-M_{j-1}}{6h_j}.
+\end{align*}
+Des Weiteren gilt für $j=1,\ldots,n-1$
+\begin{align*}
+p_j(x_{j-1}) &= d_j = y_{j-1}\\
+p_j(x_j) &= ah_j^3 + b_jh_j^2 + c_j h_j + d_j = y_j\\
+\Rightarrow c_j &= \frac{y_j-d_j}{h_j} - a_j h_j^2 - b_j h_j
+= \frac{y_j-y_{j-1}}{h_j}-\left(\frac{M_j-M_{j-1}}{6h_j}\right)h_j^2 -
+\frac{M_{j-1}}{2}h_j \\
+&=\frac{y_j-y_{j-1}}{h_j}-h_j\left(\frac{M_j}{6} -
+\frac{M_{j-1}}{6}+\frac{3M_{j-1}}{6}\right)\\
+&=\frac{y_j-y_{j-1}}{h_j} - h_j\left(\frac{M_j}{6} + \frac{M_{j-1}}{3} \right)
+\end{align*}
+\begin{align*}
+p_j'(x_j) &= 3a_j h_j^2 + 2b_jh_j + c_j\\
+&= 3\left(\frac{M_j-M_{j-1}}{6h_j} \right)h_j^2 + M_{j-1}h_j +
+\frac{y_j-y_{j-1}}{h_j} - h_j\left(\frac{M_j}{6}+\frac{M_{j-1}}{3}\right)
+\\ &= \frac{y_j-y_{j-1}}{h_j} + h_j\left(\frac{M_j}{3} +
+\frac{M_{j-1}}{5}\right)
+\end{align*}
+Verwenden wir nun die Stetigkeitsbedingung der Ableitung, ergibt sich,
+\begin{align*}
+p_{j+1}'(x) = c_{j+1} = \frac{y_{j+1}-y_j}{h_{j+1}} -
+h_{j+1}\left(\frac{M_{j+1}}{6}+\frac{M_j}{3}\right) \overset{!}{=} p_j'(x_j)
+\end{align*}
+\begin{align*}
+\frac{h_j+h_{j+1}}{3}M_j + \frac{h_j}{6}M_{j-1} + \frac{h_{j+1}}{6}M_{j+1} =
+\frac{y_{j+1}- y_j}{h_{j+1}} - \frac{y_j - y_{j-1}}{h_j}
+\end{align*}
+Wir haben also ein Gleichungssystem für $M_j$, für $j=1,\ldots,n-1$.
+Zusammengefasst ergibt sich,
+\begin{align*}
+h_j M_{j-1} + 2(h_j + h_{j+1})M_j + h_{j+1}M_{j+1} = 6\left( 
+\frac{y_{j+1}-y_j}{h_{j+1}} - \frac{y_j - y_{j-1}}{h_j}
+\right),
+\end{align*}
+wobei für natürliche Splines $M_0=M_n = 0$.
+\begin{align*}
+&\begin{pmatrix}
+2(h_1+h_2) & h_2\\
+h_2 & 2(h_2+h_3) & h_3\\
+& \ddots & \ddots & \ddots\\
+&& \ddots & \ddots & h_{n-1}\\
+&&& h_{n-1} & 2(h_{n-1}+h_{n})
+\end{pmatrix}
+\begin{pmatrix}
+M_1\\ \vdots \\ \vdots \\ \vdots \\ M_{n-1}
+\end{pmatrix}\\
+&\quad=
+\begin{pmatrix}
+\frac{6}{h_2}(y_2-y_1) - \frac{6}{h_1}(y_1-y_0)\\
+\\ \vdots \\ \vdots \\ \vdots \\
+\frac{6}{h_n}(y_n-y_{n-1}) - \frac{6}{h_{n-1}}(y_{n-1}-y_{n-2})
+\end{pmatrix}\tag{7}
+\end{align*}
+Für äquidistante Punkte $x_j = x_0 + jh$, $j=0,\ldots,n$, vereinfacht sich die
+Matrix deutlich,
+\begin{align*}
+\begin{pmatrix}
+4 & 1 \\
+1 & \ddots & \ddots\\
+&\ddots & \ddots & 1\\
+&& 1 & 4
+\end{pmatrix}
+\begin{pmatrix}
+M_1\\ \vdots \\ \vdots \\ M_{n-1}
+\end{pmatrix}
+= 
+\frac{6}{h^2}
+\begin{pmatrix}
+y_2-2y_1+y_0\\
+y_3-2y_2+y_1\\
+\vdots\\
+y_n-2y_{n-1}+y_{n-2}
+\end{pmatrix}.
+\end{align*}
+
+Das Gleichungssystem (7) hat eine strikt diagonaldeterminante Matrix, ist also
+eindeutig lösbar.
+\begin{bspn}
+
+\begin{tabular}[h]{l|lll}
+$x_i$ & 1 & 2 & 3\\\hline
+$y_i$ & 2 & 3 & 6
+\end{tabular}
+
+Es sind $M_0 = M_2 = 0$. Für $M_1$ ergibt sich,
+\begin{align*}
+4M_1 = 6(6-2\cdot 3 + 2) = 12 \Rightarrow M_1 = 3. 
+\end{align*}
+Der Spline hat die Gestalt,
+\begin{align*}
+s(x) = \begin{cases}
+p_1(x), & x\in[1,2]\\
+p_2(x), & x\in[2,3],
+\end{cases}
+\end{align*}
+wobei 
+\begin{align*}
+&p_1(x) = a_1(x-1)^3 + b_1(x-1)^2 + c_1(x-1)+d_1\\
+\Rightarrow & a_1 = \frac{M_1-M_0}{6h} = \frac{3-0}{6\cdot 1} = \frac{1}{2}\\
+& b_1 = \frac{M_0}{2} = 0\\
+& c_1 = \frac{3-2}{1} - 1\left(\frac{3}{6}+\frac{0}{3} \right) = \frac{1}{2}\\
+& d_1 = y_0 = 2.
+\end{align*}
+Wir erhalten somit
+\begin{align*}
+p_1(x) = \frac{1}{2}(x-1)^2 + \frac{1}{2}(x-1) + 2.
+\end{align*}
+Für $p_2$ erhalten wir,
+\begin{align*}
+&p_2(x) = a_2(x-2)^3 + b_2(x-2)^2 + c_2(x-2)+d_2\\
+\Rightarrow & a_2 = \frac{-3}{6} = -\frac{1}{2}\\
+& b_2 = \frac{M_1}{2} = \frac{3}{2}\\
+& c_2 = \frac{6-3}{1} - \left(0+\frac{3}{3}\right) = 2\\
+& d_2 = y_1 = 3\\
+\Rightarrow &p_2(x) = -\frac{1}{2}(x-2)^3
++ \frac{3}{2}(x-2)^2 + 2(x-2) + 3.\bsphere
+\end{align*}
+\end{bspn}
+
+\subsubsection{Approximationseigenschaften von Splines}
+
+\begin{bemn}[Interpolationsaufgabe.]
+Gegeben sind die Daten,
+\begin{align*}
+&a=x_0 < x_1 < x_2 < \ldots < x_n = b,\\
+&y_0,\ldots,y_n\in\R.
+\end{align*}
+Finde $s\in\SS_3(X)$, $X=(x_0,x_1,\ldots,x_n)$ mit
+\begin{align*}
+s(x_j) = y_j\quad\text{für }j=0,\ldots,n,
+\end{align*}
+die eine der folgenden Randbedingungen erfüllt,
+\begin{align*}
+&s''(a) = s''(b) = 0,\tag{R1}\\
+&s'(a) = \alpha, (b) = \beta,\qquad \alpha,\beta\in\R \text{ gegeben},\tag{R2}\\
+&s'(a) = s'(b),\; s''(a) = s''(b),\tag{R3}
+\end{align*}
+wobei (R3) nur sinnvoll ist, wenn $s(a) = s(b)$.
+\end{bemn}
+Wir wollen nun Funktionenräume definieren, die unseren Randbedigungen
+entsprechen.
+\begin{align*}
+&V_1 = \setdef{f\in C^2([a,b])}{f(x_j)=y_j,\quad\text{für }j=0,\ldots,n}\\
+&V_2 = \setdef{f\in V_1}{f'(a)=\alpha,\; f'(b) = \beta}\\
+&V_3 = \setdef{f\in V_1}{f'(a)=f'(b),\; f''(a)=f''(b)}
+\end{align*}
+Wir können damit die Interpolationsaufgabe auch als,
+finde $s\in  S_3\cap V_j$, definieren.
+
+\begin{prop}[Optimalitätskriterium]
+\label{prop:3.6}
+Sei $j\in\setd{1,2,3}$, $s\in V_j\cap S_3$ die Splineinterpolation für $f\in
+V_j$ und $s''(a) = s''(b)=0$ falls $j=1$. Dann gilt
+\begin{align*}
+\int\limits_a^b \abs{s''(x)}^2 \dx \le \int\limits_a^b \abs{f''(x)}^2 \dx.
+\end{align*}
+D.h. $s$ löst das Optimierungsproblem
+\begin{align*}
+\min\limits_{g\in V_j} \int\limits_{a}^b \abs{g''(x)}^2 \dx.\fishhere
+\end{align*}
+\end{prop}
+\begin{proof}
+Sei $f\in V_j$, $s\in S_3\cap V_j$. Für
+\begin{align*}
+\int\limits_a^b \abs{s''(x)}^2 \dx = 0
+\end{align*}
+folgt die Behauptung sofort. $s$ ist abschnittsweise ein Polynom vom
+Grad 3, die 4. Ableitung verschwindet also. Die Idee ist nun, das Integral durch
+partielle Integration so umzuformen, dass Ableitungen von $s$ 4. Grades
+auftreten,
+\begin{align*}
+&\int\limits_a^b (f-s)''(x)s''(x)\dx = 
+\sum\limits_{j=1}^n \int\limits_{x_{j-1}}^{x_j} (f-s)''(x)s''(x)\dx\\
+&\overset{\small\text{part.int.}}{=} 
+\sum\limits_{j=1}^n \left(\left[(f-s)'(x)s''(x) \right]_{x_{j-1}}^{x_j}
+- \int\limits_{x_{j-1}}^{x_j} (f-s)'(x)s'''(x)\dx\right).
+\end{align*}
+Mit
+\begin{align*}
+&\sum\limits_{j=1}^n\left[(f-s)'(x)s''(x) \right]_{x_{j-1}}^{x_j}
+= (f-s)'(b)s''(b)-(f-s)'(a)s''(a) = 0 \\ &
+\text{ wegen }
+\begin{cases}
+s''(a)=s''(b) = 0, & j=1,\\
+(f-s)'(a) = (f-s)'(b)=0, & j=2,\\
+(f-s)'(a) = (f-s)'(b),\; s''(a)=s''(b), & j=3,
+\end{cases}
+\end{align*}
+folgt
+\begin{align*}
+&\int\limits_a^b (f-s)''(x)s''(x)\dx \\ &= 
+\sum\limits_{j=1}^n
+-\underbrace{\left[(f-s)(x)p_j'''(x) \right]_{x_{j-1}}^{x_j}}_{0\text{ wegen
+} f(x_j)=s(x_j)} + \int\limits_{x_{j-1}}^{x_j}
+(f-s)(x)\underbrace{p_j^{(4)}(x)}_{=0,\text{ da }\deg p_j = 3}\dx,
+\end{align*}
+wobei $s'''(x)\big|_{[x_{j-1},x_j]} = p_j'''(x)$. Insgesamt gilt also
+\begin{align*}
+&\int\limits_a^b (s''(x))^2 \dx = \int\limits_a^b f''(x)s''(x)\dx\\
+&\le \left(\int\limits_a^b (f''(x))^2\dx\right)^{1/2} \left(\int\limits_a^b
+(s''(x))^2\dx\right)^{1/2}\\
+\Rightarrow &\int\limits_a^b (s''(x))^2 \dx \le \int\limits_a^b (f''(x))^2
+\dx\qedhere
+\end{align*}
+\end{proof}
+
+\begin{bemn}[Physikalische Interpretation.]
+Wir betrachten den Graphen des Spline als Kurve
+\begin{align*}
+\Gamma = \setdef{\begin{pmatrix}x\\s(x)\end{pmatrix}}{x\in [a,b]}.
+\end{align*}
+Die Krümmung des Splines ist gegeben durch
+\begin{align*}
+\kappa(x) = \frac{s''(x)}{\sqrt{1+(s'(x))^2}^3}.
+\end{align*}
+Wenn man eine dünne Latte in die Form $\Gamma$ bringt, hat man die Biegeenergie
+\begin{align*}
+E &= \gamma\int_\Gamma \abs{\kappa(x)}^2\dx
+= \gamma \int\limits_a^b
+\frac{\abs{s''(x)}^2}{(1+(s'(x)^2))^3}\sqrt{1+(s'(x))^2}\dx
+ \\ &
+= \gamma \int\limits_a^b \frac{\abs{s'(x)}^2}{(1+(s'(x))^2)^{5/2}}\dx
+\end{align*}
+Für \textit{kleines} $s'$ gilt näherungsweise
+\begin{align*}
+E \approx \gamma \int\limits_a^b \abs{s''(x)}^2\dx.
+\end{align*}
+\begin{corn}
+Kubische Splines approximieren das Minimum der Biegeenergie eines dünnen
+Splines.\fishhere\maphere
+\end{corn}
+\end{bemn}
+
+\begin{bemn}[Notation.]
+\begin{align*}
+&\norm{u}_{L^2(a,b)} = \left(\int\limits_a^b \abs{u(x)}^2\dx \right)^{1/2}\\
+&\norm{u}_{L^\infty(a,b)} = \sup\limits_{x\in (a,b)} \abs{u(x)}.
+\end{align*}
+Man kann zeigen, dass so eine Norm auf einem geeignet definierten
+Funktionenraum, dem $\LL^p((a,b))$ definiert wird.\maphere
+\end{bemn}
+
+\begin{prop}
+\label{prop:3.7}
+Sei $a\le x_0 < x_1 < \ldots < x_n = b$.
+\begin{align*}
+&h = \max\limits_{j=1,\ldots,n} \abs{x_j - x_{j-1}},\quad u \in C^k([a,b])
+\text{ mit }k < n,\\
+&u(x_j) = 0,\quad j = 0,\ldots,n.
+\end{align*}
+Dann gilt
+\begin{align*}
+&\norm{u^{(l)}}_{L^2(a,b)} \le \frac{k!}{l!}h^{k-l}\norm{u^{(k)}}_{L^2(a,b)},
+&&l = 0,1,\ldots,k\tag{8}\\
+&\norm{u^{(l)}}_{L^\infty(a,b)} \le
+\frac{k!}{l!\sqrt{k}}h^{k-l-1/2}\norm{u^{(k)}}_{L^2((a,b))},&& l
+=0,1,\ldots,k\tag{9}.\fishhere
+\end{align*}
+\end{prop}
+\begin{proof}
+Die Beweisidee besteht zunächst in einer mehrfachen Anwendung des Satz von
+Rolle. $u$ hat $n+1$ Nullstellen mit maximalem Abstand $h$. $u'$ hat $n$
+Nullstellen mit maximalem Abstand $2h$. $u^{(l)}$ hat $n+1-l$ Nullstellen mit
+maximalem Abstand $(l+1)h$.
+
+Wir machen folgende Fallunterscheidung. Für $l=0$ sei,
+\begin{align*}
+&y_j = x_j,\quad j=0,\ldots,n = N_0.
+\end{align*}
+Für $l>0$ seien die Nullstellen von $u^{(l)}$,
+\begin{align*}
+&y_1 < y_2 < \ldots < y_{n+1-l},
+\end{align*}
+sowie
+\begin{align*}
+&y_0 = a,\; y_{n+2-l} = b,\; N_l = n+2-l.
+\end{align*}
+
+Zu (8): Für $x\in [y_{j-1},y_j]$ gilt
+\begin{align*}
+\abs{u^{(l)}(x)} &\overset{j\ge 2}{=} \abs{\int\limits_{y_{j-1}}^x
+u^{(l+1)}(t)\dt} \le  \left(\int\limits_{y_{j-1}}^x 1^2\dt\right)^{1/2} \left(
+\int\limits_{y_{j-1}}^x
+\abs{u^{(l+1)}(t)}^2\dt \right)^{1/2}\\
+&\le ((l+1)h)^{1/2}\left(\int\limits_{y_{j-1}}^x
+\abs{u^{(l+1)}(t)}^2\dt \right)^{1/2},\tag{10}
+\end{align*}
+bzw. für $j=1$
+\begin{align*}
+\abs{u^{(l)}(x)} = \abs{\int\limits_x^{y_1} u^{(l+1)}(t)\dt } \le
+((l+1)h)^{1/2}\left(\int\limits_{x}^{y_1}
+\abs{u^{(l+1)}(t)}^2\dt \right)^{1/2}
+\end{align*}
+Insgesamt:
+\begin{align*}
+&\int\limits_a^b \abs{u^{(l)}(x)}^2\dx = \sum\limits_{j=1}^{N_l}
+\int\limits_{y_{j-1}}^{y_j} \abs{u^{(l)}(x)}^2 \dx\\
+&\le \sum\limits_{j=1}^{N_l}
+(l+1)h \int\limits_{y_{j-1}}^{y_j} \int\limits_{y_{j-1}}^{y_j}
+\abs{u^{(l+1)}(t)}^2 \dt\dx\\ & \le \sum\limits_{j=1}^{N_e}
+(l+1)h  \int\limits_{y_{j-1}}^{y_j} \abs{u^{(l+1)}(t)}^2
+\dt\underbrace{\int\limits_{y_{j-1}}^{y_j} 1 \dx}_{\le(l+1)h}\\
+&\le (l+1)^2h^2 \int\limits_{a}^b \abs{u^{(l+1)}(x)}^2\dx,\\
+\Rightarrow &\norm{u^{(l)}}_{L^2(a,b)}\le (l+1)h\norm{u^{(l+1)}}_{L^2(a,b)}.
+\end{align*}
+Wir können dies nun zukzessiv anwenden und erhalten,
+\begin{align*}
+\norm{u^{(l)}}_{L^2(a,b)}\le (l+1)h(l+2)h\cdots
+kh\norm{u^{(k)}}_{\LL^2(a,b)}
+= \frac{k!}{l!}h^{k-l}\norm{u^{(k)}}_{L^2(a,b)}.
+\end{align*}
+
+Zu (9): Für $x\in [y_{j-1},y_j]$ ersetzen wir (10) durch,
+\begin{align*}
+\abs{u^{(l)}(x)} &\le \int\limits_{y_{j-1}}^{y_j} \abs{u^{(l+1)}(t)}\dt
+\le (y_j-y_{j-1})\sup\limits_{x\in[a,b]} \abs{u^{(l+1)}(x)}\\
+&\le (l+1)h\sup\limits_{x\in[a,b]} \abs{u^{(l+1)}(x)},
+\end{align*}
+d.h.
+\begin{align*}
+\norm{u^{(l)}}_{L^\infty(a,b)} \le (l+1)\norm{u^{(l+1)}}_{L^\infty(a,b)}.
+\end{align*}
+für $l\le k-1$ und
+\begin{align*}
+\abs{u^{(l)}(x)}^2 \overset{\entspr (10)}{\le} (l+1)h\int\limits_{y_{j-1}}^{y_j}
+\abs{u^{(l+1)}(t)}^2\dt
+\le (l+1)h\int\limits_a^b \abs{u^{(l+1)}(t)}^2\dt
+\end{align*}
+d.h.
+\begin{align*}
+\norm{u^{(l)})}^2_{L^\infty(a,b)}\le (l+1)h\norm{u^{(l+1)}}_{L^2(a,b)}.
+\end{align*}
+Insgesamt
+\begin{align*}
+\norm{u^{(l)}}_{L^\infty(a,b)} &\le
+(l+1)h(l+2)h\cdots(k-1)h\sqrt{kh}\norm{u^{(k)}}_{L^2(a,b)}\\
+&= \frac{k!}{l!\sqrt{k}}h^{k-l-1/2}.\qedhere
+\end{align*}
+\end{proof}
+\begin{prop}
+\label{prop:3.8}
+Sei $s\in\SS_3(X)$ ein interpolierender Spline zu den Daten
+\begin{align*}
+(x_j,f(x_j)),\qquad j=0,\ldots,n, 
+\end{align*}
+mit $f\in C^2([a,b])$ und einer der Randbedingungen
+$(R1)$-$(R3)$.
+
+Im Fall $(R2)$ gelte,
+\begin{align*}
+f'(a) = \alpha,\; f'(b) = \beta,
+\end{align*}
+und im Fall $(R3)$,
+\begin{align*}
+f'(a) = f'(b),\; f''(a) = f''(b).
+\end{align*}
+Dann gilt mit $h=\max\limits_{j=1,\ldots,n} \abs{x_j-x_{j-1}}$,
+\begin{align*}
+\norm{(s-f)^{(l)}}_{L^2(a,b)} \le 2h^{2-l}\norm{f''}_{L^2(a,b)}.
+\end{align*}
+und
+\begin{align*}
+\norm{(s-f)^{(l)}}_{L^\infty(a,b)} \le \sqrt{2}h^{2-l-1/2}
+\norm{f''}_{L^2(a,b)},
+\end{align*}
+jeweils für $l=0,1$.\fishhere
+\end{prop}
+\begin{proof}
+Anwendung von Satz \ref{prop:3.7} auf $u=s-f$ für $k=2$ $\Rightarrow$
+\begin{align*}
+&\norm{s-f^{(l)}}_{L^2((a,b))} \le 2h^{2-l}\norm{(s-f)''}_{L^2((a,b))},\\
+&\norm{s-f^{(l)}}_{L^\infty((a,b))} \le
+\sqrt{2}h^{2-l-1/2}\norm{(s-f)''}_{L^2((a,b))}.
+\end{align*}
+Aus dem Beweis von \ref{prop:3.6} folgt,
+\begin{align*}
+&\int\limits_a^b s''(f''-s'')\dx = 0\\
+\Leftrightarrow &
+\int\limits_a^b (s'')^2\dx = \int\limits_a^b s''f''\dx\\
+&\norm{(s-f)''}_{L^2(a,b)}^2 = \int\limits_a^b \abs{s''-f''}^2\dx
+= \int\limits_a^b (s'')^2 - 2s''f'' (f'')^2\dx\\
+&\qquad= \int\limits_a^b (f'')^2 - (s'')^2\dx
+\le \int\limits_a^b \abs{f''}^2\dx  = \norm{f''}_{L^2(a,b)}.\qedhere
+\end{align*}
+\end{proof}
+\begin{bemn}
+Für eingespannte Splines d.h. Randbedingung $(R2)$, gilt sogar
+\begin{align*}
+\norm{s-f}_{L^\infty((a,b))} \le h^4\norm{f^{(4)}}_{L^\infty(a,b)}.
+\end{align*}
+\begin{proof}
+Siehe Schaback, Wendland, Numerische Mathematik Satz 11.13.\qedhere\maphere
+\end{proof}
+\end{bemn}
+
+\begin{prop}
+\label{prop:3.9}
+Die Spline-Interpolationsaufgabe, finde $s\in\SS_3(X)$,
+\begin{align*}
+&\text{mit }s(x_j)=y_j,\qquad \text{für }j=0,1,\ldots,n,\\
+&\text{mit }a=x_0<x_1<\ldots<x_n=b,
+\end{align*}
+hat für jede der Randbedingungen $(R1)$-$(R3)$
+eine eindeutige Lösung.\fishhere
+\end{prop}
+\begin{proof}
+Die Interpolationsaufgabe entspricht einem linearen Gleichungssystem.
+\begin{align*}
+Mc = b,\qquad c\in\R^{4n},\; M\in\R^{4n\times 4n}
+\end{align*}
+$c$ ist der Vektor der Koeffizienten von $p_j = s\big|_{[x_{j-1},x_j]}
+\in\PP^3$, $M$ die Matrix mit den
+\begin{align*}
+4n = (2n) +(n-1)+(n-2) + 2
+\end{align*}
+Bedingungen. Die Lösung von $Mc = 0$ liefert den Spline zu den Daten
+$s(x_j)=0$, $j=0,\ldots,n$ und im Fall $(R2)$ noch die Bedingung $s'(a) = s'(b)
+= 0$.
+
+Wenden wir nun den Satz \ref{prop:3.8} mit $f\equiv 0$ an, so folgt
+\begin{align*}
+\norm{s-0}_{\LL^\infty(a,b)} = \sqrt{2}h^{2-1/2}\norm{0''}_{\LL^2(a,b)} = 0.
+\end{align*}
+D.h. $f=0 \Rightarrow c=0$, also ist $\ker M = (0)$, $M$ invertierbar und daher
+ist das Gleichungssystem eindeutig lösbar.\qedhere
+\end{proof}

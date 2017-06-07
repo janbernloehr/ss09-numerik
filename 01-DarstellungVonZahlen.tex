@@ -1,0 +1,297 @@
+\section{Darstellung von Zahlen, Fehlerfortpflanzung}
+
+\subsection{Darstellung von Zahlen}
+
+Um Zahlen in numerischen Verfahren verwenden zu können bedarf es einer
+Darstellung, die von Computern gespeichert und mit hinreichender
+Geschwindigkeit verarbeitet werden kann. Die endliche Speicher- und
+Rechenkapazität von Computern führt unweigerlich dazu, dass Größe und
+Genauigkeit der verwendbaren Zahlen beschränkt sind.
+
+Auch wenn wir die Details der Informatik überlassen wollen, soll dieser
+Abschnitt eine Übersicht über die uns zur Verfügung stehenden Darstellungen und
+deren Grenzen geben. Beim Entwurf von Algorithmen sind diese Grenzen stets im
+Hinterkopf zu behalten.
+
+\subsubsection{Ganze Zahlen}
+
+Ganze Zahlen können wir durch $b$-adische Brüche der Form
+\begin{align*}
+\pm a_n a_{n-1} \ldots a_0 \entspr \sum\limits_{j=0}^n a_j b^j,
+\end{align*}
+darstellen.  Die \emph{Basis} $b$ wählen wir aus $\{2,3,\ldots\}$, während
+wir die \emph{Ziffern} $a_j$ aus $\{0,1,\ldots,b-1\}$ wählen.
+
+\begin{bspn}
+\begin{enumerate}[label=(\roman{*})]
+  \item Wohlbekannt ist uns das Dezimalsystem ($b=10$). Die Zahl $1203$ hat
+  hier die Darstellung,
+\begin{align*}
+1203_{(10)} \entspr 1\cdot 10^3 + 2\cdot 10^2 + 0\cdot 10^1 + 3\cdot 10^0.
+\end{align*}
+\item Computer hingen verwenden zum Speichern von Daten in der Regel das
+Dualsystem $(b=2)$,
+\begin{align*}
+10010_{(2)} \entspr 1\cdot 2^4 + 1\cdot 2^1 = 18.\bsphere
+\end{align*}
+\end{enumerate}
+\end{bspn}
+
+Bei Computerdatenformaten ist die Anzahl der Ziffern oft vorgegeben und 
+somit sind nur endlich viele Zahlen darstellbar. Beim Über- bzw. Unterschreiten
+der maximal bzw. minimal darstellbaren Zahl treten sog. \emph{Overflowfehler}
+auf. Jede ganze Zahl bis zur minimal bzw. maximal darstellebaren Zahl ist
+jedoch exakt darstellbar.
+
+\begin{figure}[h]
+\begin{tabular}{l|l}
+\textbf{Datentyp} & \textbf{Darstellbarer Bereich}\\\hline
+{\color{blue}int} & -32768 \ldots 32767\\
+{\color{blue}long} & -2147483648\ldots2147483647
+\end{tabular}
+\caption{Mindestanforderungen der Programmiersprache C.}
+\end{figure}
+
+\subsubsection{Reelle Zahlen}
+
+Reelle Zahlen lassen sich als \emph{Fließkommazahlen} (engl.
+\emph{floatpoint}) darstellen,
+\begin{align*}
+\underbrace{\pm a_0. a_1 \ldots a_n}_{\text{Mantisse}} \mathbf{E}
+\underbrace{\pm c_m c_{m-1}\ldots c_0}_{\text{Exponent}}
+\entspr \left(\sum\limits_{j=0}^n a_j b^{-j}\right) b^{\sum\limits_{n=0}^m
+c_j b^j}.
+\end{align*}
+Die Basis $b$ wählen wir aus $\{2,3,\ldots\}$,  
+$a_j$ und $c_k$ aus $\{0,1,\ldots,b-1\}$. Es gilt die Konvention
+$a_0\neq 0$ für eine Zahl ungleich Null.
+\begin{bsp}
+Im Dualsystem ($b=2$) 
+\begin{align*}
+-1.01 \mathbf{E}+ 110 \entspr -(1 + 1\cdot 2^{-2})\cdot 2^{1\cdot 2^2+1\cdot
+2^1} = -\frac{5}{4}\cdot 2^6 = - 5\cdot 2^4 = -80.\bsphere
+\end{align*}
+\end{bsp}
+Auch hier ist bei Computerdatenformaten die Länge der Mantisse $(n+1)$ und die
+Länge des Exponenten $(m+1)$ fest vorgegeben. Es sind also nur endlich viele
+Zahlen darstellbar und es gibt eine größte bzw. kleinste darstellbare Zahl
+\begin{align*}
+z_{\text{max}}= (b-1).(b-1)(b-1)\ldots(b-1)\mathrm{E} (b-1)\ldots(b-1).
+\end{align*}
+Die kleinste darstellbare Zahl $>0$ ist gegeben durch
+\begin{align*}
+z_{\text{min}}= 1.0\ldots0\mathbf{E}- (b-1)\ldots(b-1).
+\end{align*}
+Neben den Overflowfehlern bei $\abs{\text{Zahl}} > \abs{z_{\text{max}}}$ können
+daher auch \emph{Underflowfehler} auftreten, wenn
+$\abs{\text{Zahl}}\neq 0$ und $\abs{\text{Zahl}} < z_{\text{min}}$.
+
+Jede Zahl $z\in[z_{\text{min}}, z_{\text{max}}]\cup\{0\}\cup[-z_{\text{max}},
+-z_{\text{min}}]$ kann bis auf einen relativen Fehler durch eine Fließkommazahl
+approximiert werden,
+\begin{align*}
+\frac{\abs{z-\tilde{z}}}{\abs{z}} \le \ep = \frac{1}{2}b^{-n},
+\end{align*}
+$\ep$ heißt \emph{Maschinengenaugigkeit}.
+
+\begin{figure}[h]
+\begin{tabular}{l|cclll}
+\bfseries Typ & $n+1$ & $m+1$ & $z_\text{max}$ & $z_\text{min}$ & $\ep$\\\hline
+``single precision'' & 23 & 8 & $\approx 10^{38}$ &  $\approx 10^{-38}$ &
+$10^{-7}$\\
+``double precision'' & 52 & 11 & $\approx 10^{308}$ &  $\approx 10^{-308}$ &
+$10^{-16}$
+\end{tabular}
+\caption{Typische Werte bei $b=2$.}
+\end{figure}
+
+\subsection{Fehlerfortpflanzung}
+
+Wie wir im letzten Abschnitt gesehen haben, arbeitet man in der numerischen
+Mathematik lediglich mit Approximationen. Zudem sind häufig bereits die
+vorliegenden Daten ``ungenau'', d.h. mit einem gewissen Fehler behaftet. Nun
+ist es für den Entwurf und die Verwendung von Algorithmen von großem Interesse,
+wie sich dieser Fehler durch das Anwenden von elementaren Operationen
+verändert, um Aussagen über die Qualität des Ergebnisses machen zu können.
+
+Dazu definieren wir zunächst für eine exakte Zahl $z\in \R$ und ihre
+Approximation $\tilde{z}\in\R$ den \emph{absoluten Fehler}
+\begin{align*}
+e_A = \abs{z-\tilde{z}},
+\end{align*}
+und den \emph{relative Fehler}
+\begin{align*}
+e_R = \frac{\abs{z-\tilde{z}}}{\abs{z}}.
+\end{align*}
+
+Im Folgenden wollen wir untersuchen, wie sich dieser Fehler bei elementaren
+Operationen verhält. Seien dazu
+\begin{itemize}[label=-]
+  \item $x,y\in\R$ exakte Zahlen,
+  \item $\tilde{x},\tilde{y}$ Approxmationen,
+  \item $\Delta x = \tilde{x}-x$, $\Delta y = \tilde{y}-y$.
+\end{itemize}
+
+\subsubsection{Addition}
+\begin{itemize}[label=-]
+  \item $z=x+y\in\R$ exakte Summe,
+  \item $\tilde{z} = \tilde{x}+\tilde{y}$ Approxmation.
+\end{itemize}
+Der \textit{absolute Fehler} der Addition ist gegeben durch,
+\begin{align*}
+e_A &= \abs{\tilde{z}-z} = \abs{x+y-(x+\Delta x)-(y+\Delta y)}
+\\ &= \abs{\Delta x + \Delta y} \le \abs{\Delta x} + \abs{\Delta y}.
+\end{align*}
+$e_A$ ist ``klein'', wenn $\abs{\Delta x}$ und $\abs{\Delta y}$ ``klein'' sind.
+Der \textit{relative Fehler}
+\begin{align*}
+e_R = \frac{e_A}{\abs{x+y}} = \frac{\abs{\Delta x+ \Delta y}}{\abs{x+y}},
+\end{align*}
+hingegen kann auch für kleine $\abs{\Delta x}$ und $\abs{\Delta y}$ groß werden,
+nämlich wenn $\abs{x+y}$ sehr klein wird.
+\begin{bspn}
+Sei ein Dezimalsystem mit $6$-Stellen Genauigkeit gegeben.
+\begin{align*}
+&\tilde{x} = 1,93251 \cdot 10^{-3},\\
+&\tilde{y} = -1,93248 \cdot 10^{-3},\\
+&\tilde{x}+\tilde{y} = 0,00003 \cdot 10^{-3}.
+\end{align*}
+Von $6$-Stellen ist noch genau eine übrig. Diese Phänomen nennt man
+\emph{Auslöschung} und tritt immer dann auf, wenn man zwei gleich große
+Zahlen subtrahiert und daher das Ergebnis nahe bei Null liegt.\bsphere
+\end{bspn}
+
+\subsubsection{Multiplikation}
+\begin{itemize}[label=-]
+  \item $z = x\cdot y$ exaktes Produkt,
+  \item $\tilde{z} = \tilde{x}\cdot\tilde{y}$ Approximation.
+\end{itemize}
+\begin{bemn}[Absoluter Fehler.]
+\begin{align*}
+e_A &= \abs{\tilde{z}-z} =
+ \abs{x\cdot y + x\cdot\Delta y + \Delta x\cdot y +
+\Delta x \cdot \Delta y- x\cdot y} \\ &= \abs{x\cdot\Delta y + \Delta x\cdot y +
+\Delta x \cdot \Delta y}.
+\end{align*}
+\end{bemn}
+\begin{bemn}[Relativer Fehler.]
+\begin{align*}
+e_R &= \frac{\tilde{z}-z}{\abs{z}} = \frac{\abs{x\cdot\Delta y + \Delta x\cdot
+y + \Delta x \cdot \Delta y}}{\abs{xy}} \\
+&\le \underbrace{\frac{\abs{\Delta y}}{\abs{y}} +
+\frac{\abs{\Delta x}}{\abs{x}}}_{\text{rel. Fehler von $x$ und $y$}} +
+\underbrace{\frac{\abs{\Delta x}}{\abs{x}} \frac{\abs{\Delta
+y}}{\abs{y}}}_{\text{Verstärkung}}.
+\end{align*}
+$e_R$ wird durch die Multiplikation nur schwach verstärkt. Die Multiplikation
+ist daher im Gegensatz zur Addition eine sehr gutartige Operation.
+\end{bemn}
+
+\subsubsection{Funktionsauswertung}
+Seien $D$ ein offenes Intervall, $f\in C^1(D\to\R)$\footnote{Die Forderung,
+dass $f$ für die Funktionsauswertung stetig differenzierbar sein muss, erscheint
+zunächst scharf; die in der Numerik vorliegenden Funktionen sind jedoch in der
+Regel hinreichend glatt und die Differenzierbarkeit erlaubt eine elegante
+Fehlerabschätzung.} und
+\begin{itemize}[label=-]
+  \item $x\in D$ exaktes Argument,
+  \item $\tilde{x}\in D$ Approximation,
+  \item $f(x)$ exakter Funktionswert,
+  \item $f(\tilde{x})$ Approximation.
+\end{itemize}
+Wir vernachlässigen etwaige Maschinenfehler bei der Funktionsauswertung selbst,
+da wir lediglich an der Fehlerfortpflanzung durch die Auswertung an $\tilde{x}$
+anstatt von $x$ interessiert sind.
+
+$f$ ist differenzierbar in $x$ und besitzt daher die Darstellung
+\begin{align*}
+f(\tilde{x}) = f(x) + f'(x)\Delta x + o(\Delta x) \approx f(x) + f'(x)\Delta x,
+\end{align*}
+mit der wir die Fehler elegant angeben können.
+\begin{bemn}[Absoluter Fehler.]
+\begin{align*}
+e_A = \abs{f(\tilde{x})-f(x)} = \abs{f'(x)}\abs{\Delta x}.
+\end{align*}
+Der Fehler von $x$ wird also mit $\abs{f'(x)}$ verstärkt. $\abs{f'(x)}$ heißt
+hier Verstärkungsfaktor.
+\end{bemn}
+\begin{bemn}[Relativer Fehler.]
+\begin{align*}
+e_R = \frac{\abs{f(\tilde{x})-f(x)}}{\abs{f(x)}} =
+\frac{\abs{f'(x)}\abs{\Delta x}}{\abs{f(x)}}
+= \frac{\abs{f'(x)}\abs{x}}{\abs{f(x)}}\frac{\abs{\Delta x}}{\abs{x}}.
+\end{align*}
+Der Verstärkungsfaktor ist hier $\frac{\abs{f'(x)}\abs{x}}{\abs{f(x)}}$.
+\end{bemn}
+\begin{bspn}
+\begin{enumerate}[label=(\roman{*})]
+  \item $f(x) = x^n$, $n\in\N$. Die Verstärkung des absoluten Fehlers beträgt
+  $n\abs{x^{n-1}}$, die des relativen Fehlers $n$.
+  \item $f(x)=\sin x$. Die Verstärkung des absoluten Fehlers ist $\abs{\cos x}
+  \le 1$, die des relativen Fehlers  $\frac{\abs{\cos x}}{\abs{\sin
+  x}}\abs{x}$. Letztere wird groß, wenn $x\approx k\pi$ mit
+  $k\in\Z\setminus\{0\}$.
+  \bsphere
+\end{enumerate}
+\end{bspn}
+
+\subsubsection{Numerische Berechnung von Ableitungen}
+Sei $D$ offenes Intervall und $f\in C^2(D\to\R)$. Die erste Ableitung lässt
+sich approximieren durch,
+$f'(x)\approx \frac{f(x+h)-f(x)}{h}$.
+\begin{bemn}[Fehlerabschätzung.] Mithilfe der Taylorentwicklung plus Restglied
+erhalten wir
+\begin{align*}
+&f(x+h) = f(x) + hf'(x) + \frac{h^2}{2}f''(\xi),\quad \xi\in [x,x+h].
+\end{align*}
+Der Fehler der Approximation lässt sich wie folgt abschätzen
+\begin{align*}
+&\abs{f'(x)-\frac{f(x+h)-f(x)}{h}} = \frac{h}{2}\abs{f''(\xi)} \le
+\frac{h}{2}C_{f''},
+\end{align*}
+wobei $C_{f''}$ eine obere Schranke für $\abs{f''(\xi)}$ ist.
+\end{bemn}
+
+Wie wir sehen, hängt der Fehler von $h$ ab, es ist aber oft nicht sinnvoll $h$
+kleinstmöglich zu wählen, da aufgrund der endlichen Maschinengenauigkeit
+Auslöschung o.ä. Effekte auftreten können. Es stellt sich also die Frage, wie
+man $h$ bei gegebener Maschinengenauigkeit $\ep$ optimal wählen kann.
+\begin{bemn}[Realisierung der Approximation.]
+\begin{align*}
+f'(x) \approx \dfrac{f(x+h) + \ep_1 - (f(x)-\ep_2) + \ep_3}{h} + \ep_4.
+\end{align*}
+\begin{itemize}[label=-]
+  \item $\ep_1$ Fehler der Auswertung von $f(x+h)$,
+  \item $\ep_2$ Fehler der Auswertung von $f(x)$,
+  \item $\ep_3$ Fehler der Subtraktion,
+  \item $\ep_4$ Fehler der Division.
+\end{itemize}
+
+Angenommen $\abs{\ep_j} \le \ep$ für $j=1,\ldots,4$, dann gilt
+\begin{align*}
+\Delta f' &= \abs{f'(x)-\frac{\abs{f(x+h)-f(x)+\ep_1+\ep_2+\ep_3)}}{h}-\ep_4}
+\\ &\le \frac{h}{2}C_{f''} + \frac{3\ep}{h} + \ep.
+\end{align*}
+Da $\ep << \frac{\ep}{h}$ für $h<1$, können wir den letzten Term
+vernachlässigen und erhalten,
+\begin{align*}
+\Delta f' \approx \frac{h}{2}C_{f''} + \frac{3\ep}{h}.
+\end{align*}
+Der Ausdruck wird minimal für $h=\sqrt{\frac{6\ep}{C_{f''}}} \approx
+\sqrt{\ep}$. Wollen wir also $h$ optimal wählen, sollte $h\approx\sqrt{\ep}$
+sein. 
+Der Fehler der Approximation von $f'$ beträgt in diesem Fall $\sqrt{2\ep
+C_{f''}}$.
+\end{bemn}
+
+\begin{bspn}
+Bei ``\textbf{single precision}'' ist $\ep\approx 2.4\cdot 10^{-8}$.
+
+\begin{tabular}[h]{ll}
+Optimales $h$ & $h\approx\sqrt{8} \approx 5\cdot 10^{-4}$\\
+Genauigkeit & $\sqrt{\ep} \approx 5\cdot 10^{-4}$
+\end{tabular}
+
+Man verliert somit beim Differenzieren ca. die Hälfte der Stellen an
+Genauigkeit.
+\end{bspn}

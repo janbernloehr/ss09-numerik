@@ -1,0 +1,135 @@
+% =============================================================================
+% Titel:	Numerische Mathematik - Mitschrieb
+% Erstellt:	SS 09
+% Dozent:	Prof. Dr. Christof Eck
+% Autor:	Jan-Cornelius Molnar
+% =============================================================================
+\documentclass[paper=a5,fleqn,DIV=calc]{scrartcl}
+
+% =============================================================================
+% 					Benötigte Pakete
+% =============================================================================
+\usepackage{janmcommon}
+\usepackage{janmscript}
+\usepackage{listings}
+\usepackage{framed}
+%\usepackage{bbm}
+
+% =============================================================================
+% 					Ana-Theorem-Style
+% =============================================================================
+% Theorem Umgebungen *MIT* Numerierung
+\theoremstyle{graymarginwithblueheader}
+\theorembodyfont{\itshape}
+\theoremseparator{}
+\theoremsymbol{}
+
+\newtheorem{prop}{Satz}[section]
+\newtheorem{lem}[prop]{Lemma}
+\newtheorem{defn}[prop]{Definition}
+\newtheorem{cor}[prop]{Korollar}
+
+\theoremstyle{graymarginwithyellowheader}
+\theorembodyfont{\normalfont}
+\theoremseparator{}
+\theoremsymbol{}
+
+\newtheorem{bsp}[prop]{Bsp}
+
+\theoremstyle{graymarginwithitblackheader}
+\theorembodyfont{\normalfont}
+\theoremseparator{}
+\theoremsymbol{}
+
+\newtheorem{bem}[prop]{Bemerkung.}
+
+% Theorem Umgebungen *OHNE* Numerierung
+\theoremstyle{graymarginwithblueheadern}
+\theorembodyfont{\itshape}
+\theoremseparator{}
+\theoremsymbol{}
+
+\newtheorem{propn}{Satz}
+\newtheorem{lemn}{Lemma}
+\newtheorem{corn}{Korollar}
+\newtheorem{defnn}{Definition}
+
+\theoremstyle{graymarginwithyellowheadern}
+\theorembodyfont{\normalfont}
+\theoremseparator{}
+\theoremsymbol{}
+
+\newtheorem{bspn}{Bsp}
+
+\theoremstyle{graymarginwithitblackheadern}
+\theorembodyfont{\normalfont}
+\theoremseparator{}
+\theoremsymbol{}
+
+\newtheorem{bemn}{Bemerkung.}
+
+% =============================================================================
+% 					Ana-Überschriften-Style
+% =============================================================================
+\renewcommand\thesection{\arabic{section}}
+\renewcommand\thesubsection{\arabic{section}-\Alph{subsection}}
+\renewcommand\thesubsubsection{\small\ensuremath{\blacksquare}\normalsize}
+
+\titleformat{\section}%
+  {\normalfont\bfseries\Huge\color{darkblue}}%
+  {\thesection}%
+  {0.6em}%
+  {}%
+  
+\titleformat{\subsection}%
+  {\normalfont\bfseries\Large\color{darkblue}}%
+  {\thesubsection}%
+  {0.6em}%
+  {}%
+
+\titleformat{\subsubsection}%
+  {\normalfont\bfseries\color{darkblue}}%
+  {\thesubsubsection}%
+  {0.2em}%
+  {}%
+
+\renewcommand{\labelenumi}{{\normalfont(\alph{enumi})}}
+
+\psset{linecolor=gdarkgray}
+\psset{tickcolor=gdarkgray}
+\psset{fillcolor=glightgray}
+
+% =============================================================================
+% 					Document-Body
+% =============================================================================
+\begin{document}
+
+% Titel
+\begin{center}
+{\huge\bf Numerische Mathematik - Mitschrieb}
+
+bei Prof. Dr. Christof Eck
+
+Jan-Cornelius Molnar, Version: \today\ \thistime
+\end{center}
+
+% Inhaltsverzeichnis
+\tableofcontents
+
+% Inhalt
+\newpage
+\input{01-DarstellungVonZahlen.tex}
+
+\newpage
+\input{02-LGS.tex}
+
+\newpage
+\input{03-Interpolation.tex}
+
+\newpage
+\input{04-NumIntegration.tex}
+
+\newpage
+\input{05-NLGS.tex}
+
+\end{document}

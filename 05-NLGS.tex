@@ -1,0 +1,895 @@
+\section{Nichtlineare Gleichungssysteme}
+
+Ziel dieses Kapitels ist die Lösung von nichtlinearen Gleichungen und
+nichtlinearen Gleichungssystem. Lineare Gleichungssysteme erhält man in der Regel nur, wenn die Abhängigkeiten
+linear sind. Bei nichtlinearen Abhängigkeiten z.b. Verformung erhält man auch
+nichtlineare Gleichungen. Wie wir bereits gesehen haben, können dies abhängig
+vom Problem sehr viele Gleichungen werden.
+Dabei wollen wir im Folgenden zwischen nichtlinearen Gleichungen
+\begin{align*}
+f(x) = 0,\qquad f: D\to \R,\quad D\subseteq \R
+\end{align*}
+und Gleichungssystemen
+\begin{align*}
+f(x) = 0,\qquad f: D\to \R^n,\quad D\subseteq \R^n 
+\end{align*}
+unterscheiden.
+
+Bei linearen Gleichungen konnten wir - sofern sie lösbar waren - stets eine
+geschlossene Form für die Lösung angeben. Im Falle der nichtlinearen Gleichungen
+können wir jedoch nicht mehr davon ausgehen. Darüber hinaus lässt sich in
+vielen Fällen die Lösung nicht exakt berechnen, sondern lediglich durch
+numerische Verfahren approximieren. In diesem Fall sind Fehlerabschätzungen
+sehr wichtig, die angeben wie groß der ``Abstand'' von der exakten Lösung nach
+$n$ Iterationen ist.
+
+Im Folgenden wollen wir einige gänge Verfahren zum Lösen von nichlinearen
+Gleichungen und Gleichungssystem untersuchen. Es gibt grob gesprochen zwei
+unterschiedliche Typen. Der erste Typ von Verfahren garantiert Konvergenz, die
+Konvergenzgeschwindigkeit ist jedoch klein. Der zweite Typ hat eine viel höhere
+Konvergenzgeschwindigkeit, die Konvergenz hängt dabei aber entscheidend vom
+Startwert - also der Wert von dem das Verfahren als vermutete Lösung ausgeht -
+ab. Diese Verfahren sind nur ``gut'', wenn der Startwert bereits nahe bei der
+Lösung liegt.
+
+\begin{bspn}
+\begin{enumerate}[label=(\roman{*})]
+  \item Berechnung von $\sqrt{a}$.
+\begin{align*}
+x^2 = a, \quad \text{d.h. } f(x) = x^2 -a;\quad D=[0,+\infty),\quad a > 0.
+\end{align*}
+\item System aus zwei Gleichungen.
+\begin{align*}
+&x^2 - e^{-xy} = 1,\\
+&xy + \sin (xy) = 0,
+\end{align*}
+d.h.
+\begin{align*}
+f\begin{pmatrix}x\\y\end{pmatrix} =
+\begin{pmatrix}
+x^2 - e^{-xy} - 1\\
+xy + \sin (xy)
+\end{pmatrix},
+\quad f: \R^2 \to \R^2. \bsphere
+\end{align*}
+\end{enumerate}
+\end{bspn}
+
+\subsection{Verfahren für skalare Gleichungen}
+
+Wir betrachten zunächst skalare nichtlineare Gleichungen,
+\begin{align*}
+f(x) = 0,\qquad f:D\to\R,\quad D\subseteq \R. \tag{1}
+\end{align*}
+
+\subsubsection{Das Bisektionsverfahren}
+
+Damit das Verfahren überhaupt sinnvoll angewendet werden kann, wollen wir davon
+ausgehen, dass $f:[a,b]\to\R$ stetig und $f(a)<0$, $f(b) > 0$ oder $f(a)>0$,
+$f(b)<0$ (d.h. $f(a)f(b) < 0$). Der Zwischenwertsatz garantiert nun
+\begin{align*}
+\exists x\in(a,b)\text{ mit }f(x) = 0.
+\end{align*}
+
+Um dieses $x$ zu approximieren, konstruieren wir eine Folge von Intervallen
+$[a_n,b_n]$ mit
+\begin{align*}
+f(a_n)f(b_n) < 0,\quad d.h. \exists x \in [a_n,b_n] : f(x) = 0.
+\end{align*}
+
+Start: $[a_0,b_0]=[a,b]$.
+
+Schritt $n\to n+1$: Setze $x_n = \frac{1}{2}(a_n + b_n)$
+\begin{align*}
+&f(a_n)f(x_n) < 0 &&\Rightarrow [a_{n+1},b_{n+1}] = [a_n,x_n],\\
+&f(a_n)f(x_n) = 0 &&\Rightarrow x_n \text{ ist Lösung},\\
+&\text{sonst} &&\Rightarrow [a_{n+1},b_{n+1}]=[x_n,b_n]
+\end{align*}
+
+%TODO: Wurzel 2 Tabelle
+
+Der Fehler fällt nicht monoton, da man für $x_{n+1}$ den Intervallmittelpunkt
+wählt.
+
+\begin{figure}[!htbp]
+\centering
+\begin{pspicture}(0,-1.27)(3.14,1.27)
+\psline{->}(0.18,-1.25)(0.18,1.25)
+\psline{->}(0.0,-0.07)(3.12,-0.07)
+\psbezier[linecolor=darkblue](0.36,-1.11)(1.28,-0.95)(1.26,0.57)(2.46,0.85)
+\psline(0.56,0.01)(0.56,-0.23)
+\psline(1.78,0.01)(1.78,-0.23)
+\psline(1.18,0.01)(1.18,-0.23)
+\psline(1.48,0.01)(1.48,-0.23)
+
+\rput(0.46,-0.345){\color{gdarkgray}$a$}
+\rput(1.95,-0.345){\color{gdarkgray}$b$}
+\rput(1.2,0.195){\color{gdarkgray}$x_1$}
+\rput(1.48,-0.445){\color{gdarkgray}$x_2$}
+\end{pspicture} 
+\caption{Bisektionsverfahren.}
+\end{figure}
+
+\begin{bemn}[Approximationseigenschaften.]
+Es gilt
+\begin{align*}
+&\abs{b_{n+1}-a_{n+1}} = \frac{1}{2}\abs{b_n-a_n}\\
+\Rightarrow &\abs{b_n-a_n} = \frac{1}{2^n}\abs{b_0-a_0}.
+\end{align*}
+Für $x_n = \frac{1}{2}(b_n-a_n)$ und jede Lösung $x^*\in [a_n,b_n]$ von $f(x^*)
+= 0$ gilt
+\begin{align*}
+\abs{x_n - x^*} \le \frac{1}{2^{n+1}}\abs{b_0-a_0}.
+\end{align*}
+Das Bisektionsverfahren konvergiert sicher gegen eine Lösung. Es kann jedoch
+schwierig werden, bei mehreren Lösungen alle zu bekommen. 
+\end{bemn}
+
+\subsubsection{Das Sekantenverfahren}
+
+Konstruktion einer Folge $(x_n)_{n\ge 0}$ von Näherungslösungen aus zwei
+verschiedenen Startwerten $x_0\neq x_1$.
+
+Schritt $n\to n+1$. Bilde die Sekante $s=s(x)$ durch $(x_{n-1},f(x_{n-1}))$ und
+$(x_n,f(x_n))$ und löse $s(x) = 0 \Rightarrow x_{n+1}$.
+
+\begin{figure}[!htbp]
+\centering
+\begin{pspicture}(0,-1.43)(3.52,1.43)
+\psline{->}(0.18,-1.33)(0.18,1.17)
+\psline{->}(0.0,-0.15)(3.12,-0.15)
+\psbezier[linecolor=darkblue](0.36,-1.19)(2.3,-0.69)(0.72,0.85)(3.5,1.11)
+\psline(1.78,-0.07)(1.78,-0.31)
+\psline(0.82,-0.07)(0.82,-0.31)
+\psline(2.78,-0.05)(2.78,-0.29)
+\psline(0.54,-0.33)(3.42,1.41)
+\psline(2.26,1.13)(0.56,-1.41)
+
+\rput(0.8,-0.465){\color{gdarkgray}$x_2$}
+\rput(1.76,-0.485){\color{gdarkgray}$x_1$}
+\rput(2.78,-0.465){\color{gdarkgray}$x_0$}
+
+\psdots(1.8,0.43)
+\psdots(2.74,0.99)
+\psdots(0.82,-1.03)
+\end{pspicture}
+\caption{Sekantenverfahren.}
+\end{figure}
+
+Darstellung von $s(x)$:
+\begin{align*}
+&s(x) = f(x_n-1)\frac{x-x_n}{x_{n-1}-x_n} + f(x_n)\frac{x-x_{n-1}}{x_n-x_{n-1}}
+\overset{!}{=} 0,\\
+\Rightarrow & x_{n+1} \frac{f(x_n)-f(x_{n-1})}{x_n-x_{n-1}} +
+\frac{f(x_{n-1})x_n - f(x_n)x_{n-1}}{x_n-x_{n-1}} \overset{!}{=} 0 \\
+\Rightarrow & x_{n+1} =
+\frac{f(x_n)x_{n-1}-f(x_{n-1})x_n}{f(x_n)-f(x_{n-1})}\tag{2}
+\end{align*} 
+
+%TODO: Sekantenverfahren Tabelle
+
+\begin{prop}[Konvergenz des Sekantenverfahrens]
+\label{prop:5.1}
+Sei $f\in C^2([a,b])$, $x^*\in (a,b)$ Lösung von $f(x) = 0$ und $f'(x^*),f''(x^*)\neq 0$.
+
+Dann existiert ein $\delta > 0$, so dass das Sekantenverfahren für alle
+Startwerte $x_0,\;x_1\in U_\delta(x^*)$ konvergiert und es gilt
+\begin{align*}
+\abs{x_{n+1}-x^*}\le C\abs{x_n-x^*}^p,\qquad \text{für } n\ge 1
+\end{align*}
+mit $p=\frac{1}{2}\left(1+\sqrt{5}\right)$ und $C>0$.\fishhere
+\end{prop}
+\begin{proof}
+\begin{enumerate}[label=\arabic{*})]
+  \item 
+Wir zeigen zunächst, aus $x_n\neq x_{n-1}$ und $f(x_n)\neq 0$ folgt $x_{n+1}\neq
+x_n$.
+
+Angenommen $x_{n+1}=x_n$. Dann gilt:
+\begin{align*}
+&x_{n+1}\left(f(x_n) - f(x_{n-1}) \right) = f(x_n)x_{n-1} - f(x_{n-1})x_n\\
+\Rightarrow & x_n f(x_n) = f(x_n)x_{n-1}.\dipper.
+\end{align*}
+Folgerung: Falls $x_0\neq x_1$, dann gilt $x_n\neq x_{n-1}$ so lange $x_n$
+wohldefiniert ist.
+
+\item \textit{Konvergenz von $(x_n)$}.
+Aus $f\in C^1([a,b])$ und $f'(x^*)\neq 0$ folgt,
+\begin{align*}
+\exists \ep > 0 \forall x\in U_\ep(x^*) : \abs{f'(x)} \ge
+\frac{1}{2}\abs{f'(x^*)} > 0.
+\end{align*}
+D.h. $f$ ist in $U_\ep(x^*)$ streng monoton und daher ist für $x_n,x_{n-1}\in
+U_\ep(x^*)$, $x_{n+1}$ wohldefiniert, denn $f(x_n)\neq f(x_{n-1})$.
+
+Sei $e_n := x_n-x^*$. Aus (2) folgt,
+\begin{align*}
+e_{n+1} &= \frac{f(x_n)e_{n-1}-f(x_{n-1})e_n}{f(x_n)-f(x_{n-1})}
++ x^* \frac{f(x_n)-f(x_{n-1})}{f(x_n)-f(x_{n-1})}-x^*
+\\ &=  \frac{f(x_n)e_{n-1}-f(x_{n-1})e_n}{f(x_n)-f(x_{n-1})}
+\end{align*}
+\begin{align*}
+\Rightarrow \frac{e_{n+1}}{e_ne_{n-1}} &= \frac{1}{f(x_n)-f(x_{n-1})}\left[
+\frac{f(x_n)}{x_n-x^*} -\frac{f(x_{n-1})}{x_{n-1}-x^*}\right]\\
+&= \frac{g(x_n)-g(x_{n-1})}{f(x_n)-f(x_{n-1})}
+\end{align*}
+mit $g(x) := \frac{f(x)}{x-x^*} = \frac{f(x)-f(x^*)}{x-x^*}$.
+
+Anwendung des Mittelwertsatzes auf die Funktion,
+\begin{align*}
+&h(x) := \left(g(x_n)-g(x_{n-1})f(x) - (f(x_n)-f(x_{n-1}))g(x)
+\right)
+\end{align*}
+ergibt,
+\begin{align*}
+ &h(x_n)-h(x_{n-1}) = h'(\xi_n) (x_n-x_{n-1})\\
+ &= (g(x_n)-g(x_{n-1}))f'(\xi_n) - (f(x_n)-f(x_{n-1}))g'(\xi_n)\\
+ &= -g(x_{n-1})f(x_n) + f(x_{n-1})g(x_n) -
+\left(g(x_n)f(x_{n-1})-f(x_n)g(x_{n-1})\right)\\
+ &=0.
+\end{align*}
+Wir erhalten somit die Gleichung
+\begin{align*}
+\frac{g(x_n)-g(x_{n-1})}{f(x_n)-f(x_{n-1})} =
+\frac{g'(\xi_n)}{f'(\xi_n)}.
+\end{align*}
+Mit $g'(x) = \frac{f'(x)(x-x^*)-f(x)}{(x-x^*)^2}$ und Taylorentwicklung von $f$
+in $x$,
+\begin{align*}
+0 = f(x^*) = f(x) + f'(x)(x^*-x) + \frac{1}{2}f''(\eta)(x^*-x)^2,
+\end{align*}
+$\eta$ zwischen $x$ und $x^*$, folgt
+\begin{align*}
+g'(x) &= \frac{f'(x-x^*)-\left(-f'(x)(x^* -x)-\frac{1}{2}f''(\eta)(x^*-x)^2
+\right)}{(x-x^*)^2}\\
+&= \frac{1}{2}f''(\eta)\\
+\Rightarrow g'(\xi_n) &= \frac{1}{2}f''(\eta_n).\\
+\Rightarrow
+\frac{e_{n+1}}{e_ne_{n-1}}&=\frac{1}{2}\frac{f''(\eta_n)}{f'(\xi_n)}\tag{3}
+\end{align*}
+mit $\xi_n,\eta_n$ zwischen $x_{n-1}$ und $x_n$.
+Sei
+\begin{align*}
+&C := \frac{\sup_{\eta\in U_\ep(x^*)}\abs{f''(\eta)}}{f'(x^*)}\\
+\Rightarrow & \frac{e_{n+1}}{e_ne_{n-1}} \le C.
+\end{align*}
+Für $\delta = \min\setd{\ep,\frac{1}{2C}}$ gilt
+\begin{align*}
+\abs{e_{n-1}}\le \delta \Rightarrow \abs{e_{n+1}} \le C\abs{e_n}\abs{e_{n-1}}
+\le \frac{1}{2}\abs{e_n}.
+\end{align*}
+Aus $\abs{e_0},\abs{e_1}<\delta$, d.h. $x_0,x_1\in U_\delta(x^*)$, folgt
+(mit Induktion)
+\begin{align*}
+&\abs{e_{n-1}} \le \frac{1}{2^{n-1}}\abs{e_1}.\\
+\Rightarrow\; &e_n\overset{n\to\infty}{\to} 0 \Rightarrow
+x_n\overset{n\to\infty}{\to} x^*.
+\end{align*}
+\item
+\textit{Konvergenzgeschwindigkeit}. Setze $y_n :=
+\frac{\abs{e_n}}{\abs{e_{n-1}}^p}$, dann folgt mit (3),
+\begin{align*}
+y_{n+1}=\alpha_n \frac{\abs{e_n}\abs{e_{n-1}}}{\abs{e_{n}}^p},
+\end{align*}
+mit $\alpha_n = \frac{1}{2}\abs{\frac{f''(\eta_n)}{f'(\xi_n)}}$.
+\begin{align*}
+\Rightarrow y_{n+1} = \alpha_n \left( \frac{\abs{e_n}}{\abs{e_{n-1}}^p}
+\right)^{-(p-1)},
+\end{align*}
+falls $p(p-1)=1$. D.h. $p^2 -p - 1= 0$ $\Leftrightarrow $ $p_{1,2} =
+\frac{1}{2}\pm \sqrt{\frac{1}{4}+1} = \frac{1}{2}\pm \frac{\sqrt{5}}{2}$.
+
+Setze $p=\frac{1+\sqrt{5}}{2}$, dann
+\begin{align*}
+y_{n+1} = \alpha_n y_n^{-(p-1)}.
+\end{align*}
+Für $\delta$ klein genug gilt wegen $f''(x^*)\neq 0$:
+\begin{align*}
+\frac{1}{c_0} \le \alpha_n \le c_0,\qquad \text{mit } c_0 > 0,
+\end{align*}
+falls $\eta_n,\xi_n\in U_\delta(x^*)$.
+Für $\gamma_n = \log y_n$ folgt,
+\begin{align*}
+\gamma_{n+1} = \log (\alpha_n) + \underbrace{(p-1)}_{=\frac{1}{p}}\gamma_n
+\end{align*}
+Mit Induktion folgt,
+\begin{align*}
+\gamma_2 &= \log \alpha_1 - \frac{1}{p}\gamma_1,\\
+\gamma_3 &= \log \alpha_2 - \frac{1}{p}\left(\log \alpha_1 -
+\frac{1}{p}\gamma_1\right)\\
+&\vdots\\
+\gamma_{n+1} &=  \sum\limits_{j=1}^n \left(-\frac{1}{p}\right)^{n-j}
+\log\alpha_j + \left(-\frac{1}{p}\right)^n\gamma_1
+\end{align*}
+Das gilt für $\abs{e_0},\abs{e_1}\le \delta$. Wegen $\abs{\log\alpha_j}\le
+\abs{\log c_0} = a$ folgt,
+\begin{align*}
+&\abs{\gamma_{n+1}} \le \sum\limits_{j=1}^n \left(\frac{1}{p}\right)^{n-j}a +
+\gamma_1 \le \frac{a}{1-\frac{1}{p}} + \gamma_1 =: c_1\\
+&\Rightarrow -c_1 \le \log y_{n+1} \le c_1\\
+\Rightarrow &\frac{1}{e^{c_1}} \le y_{n+1} =
+\frac{\abs{e_{n+1}}}{\abs{e_n}}\le e^{c_1}\\ \Rightarrow &\abs{x_{n+1}-x^*} \le
+e^{c_1}\abs{x_n-x^*}^p.\qedhere \end{align*}
+\end{enumerate}
+\end{proof}
+
+\begin{bemn}[Problem.]
+Das Verfahren konvergiert nur, wenn der Startwert sich bereits nahe der
+Nullstelle befindet. Man muss also erst einmal einen geeigneten Startwert
+``raten''.\maphere
+\end{bemn}
+
+\subsubsection{Das Newton-Verfahren}
+
+Das Newton-Verfahren liefert eine Folge von Näherungslösungen $(x_n)_{n\ge 0}$.
+
+Startwert sei $x_0$. Im Schritt
+$n\mapsto n+1$ konstruiere die Tangente des Graphen $\setd{(x,f(x))\in D}$ in
+$(x_n,f(x_n))$,
+
+\begin{figure}[!htbp]
+\centering
+\begin{pspicture}(0,-2.072)(4.88,2.11)
+\psline{->}(0.18,-0.99)(0.2,1.89)
+\psline{->}(0.0,-0.73)(4.66,-0.73)
+\psline[linecolor=yellow](1.52,-2.07)(4.42,1.45)
+\psline[linecolor=yellow](0.76,-1.25)(4.74,0.73)
+
+\psbezier[linecolor=darkblue](0.96,-1.51)(1.3,-0.39)(3.18,-0.77)(4.02,1.15)
+
+\psdots[dotstyle=x](3.6,-0.73)
+\psdots(3.62,0.47)
+\psdots[dotstyle=x](2.62,-0.73)
+\psdots(2.6,-0.33)
+\psdots[dotstyle=x](1.8,-0.73)
+
+\rput(4.75,-0.845){\color{gdarkgray}$x$}
+\rput(0.11,2.015){\color{gdarkgray}$y$}
+\rput(3.62,-0.925){\color{gdarkgray}$x_0$}
+\rput(2.74,-0.925){\color{gdarkgray}$x_1$}
+\rput(1.86,-0.925){\color{gdarkgray}$x_2$}
+\end{pspicture} 
+\caption{Newtonverfahren.}
+\end{figure}
+
+Tangente $\setdef{(x,t(x))}{x\in D}$ und löse anschließend $t(x_{n+1})=0$. Es
+gilt
+\begin{align*}
+t(x) = f(x_n) + f'(x_n)(x-x_n) \overset{!}{=} 0\\
+\Rightarrow x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}\tag{5}
+\end{align*}
+\begin{bspn}
+$x^2 = a$, $f(x) = x^2 - a \overset{!}{=} 0$.
+Es folgt,
+\begin{align*}
+x_{n+1} = x_n - \frac{x_n^2 -a}{2x_n} = \frac{1}{2}\left(x_n +
+\frac{a}{x_n}\right).
+\end{align*}
+Dieses Iterationsverfahren zur Berechnung von $\sqrt{a}$ heißt \emph{Heronsches
+Verfahren}. Es ist seit bereits 2000 Jahren bekannt.\bsphere
+\end{bspn}
+
+\begin{prop}[Konvergenz des Newton-Verfahrens]
+\label{prop:5.2}
+Sei $f\in C^2((a,b)\to\R)$, $x^*\in (a,b)$, $f(x^*)=0$, $f'(x^*)\neq 0$. Dann
+existiert ein $\delta > 0$ so, dass das Newton-Verfahren für alle
+Startwerte $x_0 \in U_\delta(x^*)$ konvergiert und es gilt,
+\begin{align*}
+\abs{x_{n+1}-x^*}\le C\abs{x_n-x^*}^2, \quad \text{ mit }C>0.\fishhere
+\end{align*}
+\end{prop}
+\begin{proof}
+Sei $\ep >0$ so, dass $\abs{f'(x)} \ge \frac{1}{2}\abs{f'(x^*)}$ für alle $x\in
+U_\ep(x^*)$. Sei $\abs{x_n-x^*}\le \ep$. Dann gilt
+\begin{align*}
+x_{n+1}-x^* = x_n - x^* - \frac{f(x_n)-f(x^*)}{f'(x_n)}
+= \left(1- \frac{f'(\xi_n)}{f'(x_n)} \right)(x_n-x^*)
+\end{align*}
+mit $\xi_n$ zwischen $x_n$ und $x^*$. Daraus folgt,
+\begin{align*}
+x_{n+1}-x^* = \frac{f'(x_n)-f'(\xi_n)}{f'(x_n)}(x_n-x^*)
+= \frac{f''(\eta_n)}{f'(x_n)}\left(x_n - \xi_n\right)(x_n-x^*).
+\end{align*}
+mit $\eta_n$ zwischen $x_n$ und $\xi_n$. Sei
+\begin{align*}
+C:= 2\sup\limits_{x\in U_\ep(x^*)}\frac{\abs{f''(x)}}{f'(x^*)},
+\end{align*}
+dann gilt
+\begin{align*}
+\abs{x_{n+1}-x^*} \le C\abs{x_n-x^*}^2.
+\end{align*}
+Sei
+\begin{align*}
+\delta := \min\setd{\ep,\frac{1}{2C}}
+\end{align*}
+dann gilt
+\begin{align*}
+\abs{x_n-x^*} \le \delta \Rightarrow \abs{x_{n+1}-x^*} \le
+\frac{1}{2}\abs{x_n-x^*}.
+\end{align*}
+Für $\abs{x_0-x^*} \le \delta$ folgt (Induktion),
+\begin{align*}
+\abs{x_n-x^*} \le
+\left(\frac{1}{2}\right)^n\abs{x_0-x^*}\overset{n\to\infty}{\to}0.\qedhere
+\end{align*}
+\end{proof}
+
+\subsection{Nichtlineare Gleichungssysteme}
+
+\subsubsection{Fixpunktiteration}
+
+Betrachte das nichtlineare Gleichungssystem
+\begin{align*}
+f(x) = 0,\quad f: D\to\R^n,\; D\subseteq \R^m.
+\end{align*}
+Eine Umformulierung in eine äquivalente \emph{Fixpunktgleichung} ergibt,
+\begin{align*}
+f(x) + x = x
+\end{align*}
+oder
+\begin{align*}
+x - f(x) = x
+\end{align*}
+oder
+\begin{align*}
+x-\omega f(x) = x,\quad \text{mit }\omega\in\R,\omega\neq 0.
+\end{align*}
+
+\begin{prop}[Banachscher Fixpunktsatz]
+\label{prop:5.3}
+Sei $D\subseteq \R^n$ abgeschlossen, $\phi: D\to D$ eine
+Kontraktion, d.h.
+\begin{align*}
+\norm{\phi(x)-\phi(y)} \le L\norm{x-y},\qquad \forall x,y\in\D,
+\end{align*}
+mit $L< 1$. Dann gilt
+\begin{enumerate}[label=(\roman{*})]
+  \item Die Fixpunktgleichung $x = \phi(x)$ hat genau eine Lösung $x^*\in D$.
+  \item Die Fixpunktiteration ist gegeben durch
+\begin{align*}
+x^{n+1} = \phi(x^n)
+\end{align*}
+und konvergiert für jeden Startwert $x^0\in D$ gegen $x^*$. Es gelten die
+Fehlerabschätzungen,
+\begin{align*}
+&\norm{x^n - x^*} \le \frac{L^n}{1-L}\norm{x^0 - x^1},&&\text{ a
+priori},\tag{6}\\
+&\norm{x^n - x^*} \le
+\frac{L}{1-L}\norm{x^n-x^{n-1}},&&\text{ a posteriori}.\tag{7}\fishhere
+\end{align*}
+\end{enumerate}
+\end{prop}
+\begin{proof}
+\textit{Existenz}. Sei $x^0\in D$, $x^{n+1} = \phi(x^n)$ für $n=0,1,2,\ldots$.
+Es folgt,
+\begin{align*}
+\norm{x^{n+1}-x^n} = \norm{\phi(x^n)-\phi(x^{n-1})}
+\le L \norm{x^n-x^{n-1}}
+\le L^n\norm{x^1-x^0}.
+\end{align*}
+Wir zeigen, dass die Folge $(x_n)$ Cauchy ist,
+\begin{align*}
+\norm{x^{n+l}-x^n} &\le \sum\limits_{j=0}^{l-1} \norm{x^{n+j+1}-x^{n+j}}
+\le \sum\limits_{j=0}^{l-1} L^{n+j} \norm{x^1-x^0}
+\\ &\le L^n \sum\limits_{j=0}^{l-1} L^j \norm{x^1-x^0}
+\le \frac{L^n}{1-L} \norm{x^1-x^0},
+\end{align*}
+d.h. $(x_n)$ konvergiert gegen $x^* =\lim\limits_{n\to\infty} x^n$. Da $D$
+abgeschlossen liegt $x^*\in D$.
+
+Betrachte nun
+\begin{align*}
+x^{n+1} = \phi(x^n) \Rightarrow x^* \phi(x^*).
+\end{align*}
+
+\textit{Eindeutigkeit}. Seien $x^*$ und $y^*$ zwei Fixpunkte. Dann gilt
+\begin{align*}
+&\norm{x^*-y^*} = \norm{\phi(x^*)-\phi(y^*)} \le L\norm{x^*-y^*}\\
+\Rightarrow & (1-L)\norm{x^*-y^*} \le 0.
+\end{align*}
+Nun ist $1-L>0$ also  $\norm{x^*-y^*} = 0$ und daher $x^*=y^*$.
+
+\textit{Fehlerabschätzungen}. Betrachte
+\begin{align*}
+&\lim\limits_{l\to\infty} \norm{x^{n+l}-x^n} \le \frac{L^n}{1-L}\norm{x^0-x^1}
+\Rightarrow (6)
+\end{align*}
+Weiter folgt,
+\begin{align*}
+\norm{x^{n+l}-x^*} &\le \sum\limits_{j=0}^{l-1} \norm{x^{n+j+1}-x^{n+j}} \le
+\sum\limits_{j=0}^{l-1} L^{j+1} \norm{x^{n}-x^{n-1}}\\ 
+&\le L \sum\limits_{j=0}^{l-1} L^{j} \norm{x^{n}-x^{n-1}}
+\le \frac{L}{1-L}\norm{x^{n}-x^{n-1}},
+\end{align*}
+mit dem Grenzwert $l\to\infty$ folgt (7).\qedhere
+\end{proof}
+
+Anwendung auf ein nichtlineares Gleichungssystem,
+\begin{align*}
+f(x) = 0,\quad f: D\to\R^n,\quad D\subseteq \R^n.\tag{8}
+\end{align*}
+\begin{bemn}[Annahmen an $f$.]
+\begin{enumerate}[label=(\roman{*})]
+  \item $f$ ist lipschitz stetig, d.h.
+\begin{align*}
+\norm{f(x)-f(y)} \le L\norm{x-y},\quad\forall x,y\in D,\; L\in\R.
+\end{align*}
+$L<1$ ist hier \textit{nicht} verlangt.
+\item $f$ ist \emph{strikt monoton}, d.h.
+\begin{align*}
+(f(x)-f(y))(x-y) \ge \gamma\norm{x-y}^2,\quad\forall x,y\in D,
+\end{align*}
+mit $\gamma > 0$.
+\end{enumerate}
+\end{bemn}
+
+\begin{lemn}
+Sei $f\in C^1(D)$ und $D$ offen. Dann ist $f$ genau dann strikt monoton, wenn 
+$\D f = \left(\frac{\partial f_i}{\partial x_j}\right)_{i,j=1}^n$ gleichmäßig
+positiv definit ist, d.h.
+\begin{align*}
+y^\top \D f(x) y \ge \gamma \norm{y}^2,\qquad \forall y\in \R^n\forall x\in D
+\end{align*}
+mit $\gamma$ unabhängig von $x$.\fishhere
+\end{lemn}
+\begin{proof}
+``$\Rightarrow$'': Sei also $f$ strikt monoton. Dann gilt
+\begin{align*}
+y^\top \D f(x) y &= \lim\limits_{h\to 0} y^\top \frac{1}{h}\left(f(x+h y) - f(y)
+\right) \\ &= \lim\limits_{h\to 0}
+\frac{1}{h^2}\left(f(x+hy) - f(x) \right)(x+hy-x)\\
+&\ge \lim\limits_{h\to 0}
+\frac{\gamma}{h^2}\norm{x+hy-x}^2
+= 
+\gamma\norm{y}^2
+\end{align*}
+``$\Leftarrow$'': 
+\begin{align*}
+(f(x)-f(y))(x-y) &= \int\limits_0^1 \D f(y+t(x-y))(x-y)(x-y)\dt
+\\ &\ge \int\limits_0^1 \gamma\norm{x-y}^2 \dt = \gamma\norm{x-y}^2.\qedhere
+\end{align*} 
+\end{proof}
+
+Sei $f$ Lipschitz-stetig und strikt monoton. Transformiere das Gleichungssystem
+\begin{align*}
+f(x) = 0
+\end{align*}
+in die äquivalente Fixpunktgleichung
+\begin{align*}
+x = x-\omega f(x) = \phi(x),
+\end{align*}
+mit einem Relaxationsparameter $\omega > 0$.
+
+Nachprüfen der Kontraktionseigenschaft:
+\begin{align*}
+\norm{\phi(x)-\phi(y)}^2 &= \norm{x-y-\omega(f(x)-f(y))}^2
+\\ &= \norm{x-y}^2 - 2(x-y)\omega(f(x)-f(y)) + \omega^2\norm{f(x)-f(y)}^2\\
+&\le \norm{x-y}^2 - 2\omega\gamma\norm{x-y}^2
++ \omega^2 L^2\norm{x-y}^2\\
+&= \underbrace{\left( 1-2\omega\gamma + \omega^2 L^2 \right)}_{=:
+L_\omega^2}\norm{x-y}^2.
+\end{align*}
+Es muss gelten $L_\omega < 1$
+\begin{align*}
+\Leftrightarrow 1-2\omega\gamma + L^2\omega^2 <1
+\Leftrightarrow L^2 \omega^2 < 2\omega\gamma
+\Leftrightarrow \omega < \frac{2\gamma}{L^2}.
+\end{align*}
+Zur optimalen Wahl von $\omega$ bestimme das Minimum,
+\begin{align*}
+-2\omega + 2L^2 \omega = 0 \Leftrightarrow \omega_\text{opt} =
+\frac{\gamma}{L^2}.
+\end{align*}
+Optimale Kontraktionsrate
+\begin{align*}
+L_\text{opt} = L_{\omega_\text{opt}} = \sqrt{1-2\frac{\gamma}{L^2}\gamma +
+\frac{\gamma^2}{L^4}L^2} = \sqrt{1-\frac{\gamma^2}{L^2}} < 1.
+\end{align*}
+
+\begin{prop}
+\label{prop:5.4}
+Sei $f: \R^n\to\R^n$ lipschitzstetig mit Konstante $L$ und strikt monoton mit
+Konstante $\gamma>0$. Dann hat
+\begin{align*}
+f(x) = 0
+\end{align*}
+genau eine Lösung $x^*$. Das Iterationsverfahren
+\begin{align*}
+x^{n+1} = x^n - \omega
+f(x^n),\quad\text{mit } 0 < \omega <\frac{2\gamma}{L^2},
+\end{align*}
+ konvergiert für jedes $x^0\in\R^n$
+gegen $x^*$ und es gilt
+\begin{align*}
+\norm{x^n-x^*} \le L_\omega^n\norm{x^0-x^1}
+\end{align*}
+mit
+\begin{align*}
+L_\omega = \sqrt{1-2\omega\gamma + \omega^2 L^2}.\fishhere
+\end{align*}
+\end{prop}
+
+\begin{bspn}
+Betrachte $f(x) = x-e^{-x^2}$. Für die erste Ableitung gilt,
+\begin{align*}
+f'(x) = 1+2xe^{-x^2}.
+\end{align*}
+Nullstellen der zweiten Ableitung,
+\begin{align*}
+f''(x) = (2-4x^2) e^{-x^2} = 0 \Leftrightarrow x = \pm\frac{x}{\sqrt{2}}
+\end{align*}
+Als untere Schranke der Ableitung ergibt sich,
+\begin{align*}
+\Rightarrow \underbrace{1-\sqrt{2}e^{-1/2}}_{\gamma} \le f'(x) \le
+1+\sqrt{2}e^{-1/2} = L.
+\end{align*}
+Damit $f$ positiv definit ist, muss $f$ durch eine positive Zahl nach unten
+beschränkt sein,
+\begin{align*}
+e^{1/2} > 1 + \frac{1}{2},\quad \sqrt{2} < \frac{3}{2}
+\Rightarrow \frac{\sqrt{2}}{e^{1/2}} <\frac{3/2}{3/2} = 1 \Rightarrow \gamma >0
+\end{align*}
+Die optimalen Konstanten sind,
+\begin{align*}
+&\omega_\text{opt} = \frac{\gamma}{L^2}\approx 0.041\ldots\\
+&L_\text{opt} = \sqrt{1-\frac{\gamma^2}{L^2}} \approx \text{Übung}.\bsphere
+\end{align*}
+\end{bspn}
+
+\begin{bemn}
+Das Verfahren garantiert Konvergenz für jedes $x^0\in D$, jedoch kann die
+Konvergenz unter umständen sehr langsam sein. Man sieht dieses Schema immer
+wieder, robuste Verfahren garantieren Konvergenz, diese ist aber u.U. sehr
+langsam, weniger robuste Verfahren konvergieren dagegen meist sehr schnell.
+
+Es ist so wie im echten Leben, der Traktor ist sehr robust und daher auch fürs
+Feld geeignet, während man für die Autobahn doch lieber den weniger robusten
+dafür aber schnellen Porsche wählt.\maphere
+\end{bemn}
+%TODO: Beispiele Fixpunktiteration, man sieht \omega_\opt doch nicht so optimal
+% liegt daran, dass \omega optimal für die gesamte reelle achse ist.
+% wenn man nahe bei der lösung ist dann müsste $\gamma/L\approx f'(x^*)$ sein.
+% für \omega = f'(x) hat man sowas wie das Newton Verfahren,
+
+\begin{defn}
+\label{defn:5.5}
+Ein Interationsverfahren,
+\begin{align*}
+x^{n+1} = \phi(x^n)
+\end{align*}
+mit $\phi: D\to D$, $D\subseteq \R^n$ heißt \emph{lokal konvergent} gegen
+$x^*\in\R^n$ genau dann, wenn eine Umgebung $U$ von $x^*$ existiert, so dass
+die Folge $(x^n)_{n\ge 0}$ für jedes $x^0\in U$ gegen $x^*$ konvergiert.
+
+Das Verfahren heißt \emph{global konvergent} genau dann, wenn die Folge für
+jedes $x^0\in D$ gegen $x^*$ konvergiert.
+
+Das Verfahren hat die \emph{Konvergenzordnung} $p\ge 1$ genau dann, wenn
+\begin{align*}
+\exists c > 0 : \norm{x^{n+1}-x^*} \le C\norm{x^n-x^*}^p,\quad \forall n\ge 0.
+\end{align*}
+Dabei muss im Fall $p=1$ auch $C<1$ gelten.\fishhere
+\end{defn}
+
+\begin{bspn}
+Von den bereits untersuchten Verfahren sind folgende global konvergent,
+\begin{itemize}[label=-]
+  \item Bisektionsverfahren $p=1$,
+  \item Fixpunktiteration $p=1$,
+\end{itemize}
+und folgende lokal konvergent,
+\begin{itemize}[label=-]
+  \item Sekantenverfahren $p=\frac{1}{2}\left(1+\sqrt{5}\right)$,
+  \item Newtonverfahren $p=2$.\bsphere
+\end{itemize}
+\end{bspn}
+
+\subsubsection{Das Newton-Verfahren für nichtlineare Systeme}
+
+Betrachten das nichtlinerare System gegeben durch,
+\begin{align*}
+f(x) = 0,\quad f: D\to \R^n,\quad D\subseteq D\subseteq \R^n.
+\end{align*}
+
+\textit{Linearisierung} von $f$ um die aktuelle Approximation $x^n$,
+\begin{align*}
+f(x)\approx f(x^n) + \D f(x^n)(x-x^n) =: T_f(x).
+\end{align*}
+Berechnung von $x^{n+1}$ aus
+\begin{align*}
+&T_f(x^{n+1}) = 0\\
+\Rightarrow &
+\D f(x^n) (x^{n+1}-x^n) = -f(x^n).
+\end{align*}
+\textit{Algorithmus für das Newton-Verfahren}.
+\begin{tabbing}
+\hspace{20pt}	Start mit $x^0\in D$\\
+\hspace{20pt}	Schritt $n\to n+1$\\
+\hspace{40pt}		Löse \\
+\hspace{60pt}			$\D f(x^n)d^n = -f(x^n)$\\
+\hspace{40pt}		Setze\\
+\hspace{60pt}			$x^{n+1}=x^n+d^n$
+\end{tabbing}
+Man kann zeigen, dass dieses Verfahren - wie das Newton Verfahren - quadratisch
+konvergiert.
+\begin{bemn}[Bemerkungen.]
+\begin{enumerate}[label=(\roman{*})]
+  \item Die Matrix $\D f(x^n)$ wird \textit{nicht} invertiert. Es wird
+  stattdessen ein lineares Gleichungssystem gelöst.
+  \item Wenn $\D f(x)$ nicht bekannt bzw. schwer zu berechnen ist, kann man $\D
+  f(x)$ durch Differenzenquotienten approximieren.
+  \begin{align*}
+  (\D f(x))_{i,j} = \frac{\partial f_i(x)}{\partial x_j} \approx
+  \frac{f_i(x+h e_j)-f_i(x)}{h}. 
+  \end{align*}
+$e_j$ bezeichnet hier den $j$-ten Einheitsvektor.\maphere
+\end{enumerate}
+\end{bemn}
+
+\begin{prop}[Konvergenz des Newton Verfahrens im $\R^n$]
+\label{prop:5.7}
+Sei $f\in C^2(D\to\R^n)$, $D\subseteq \R^n$ offen, $f(x^*) = 0$ und $\det \D
+f(x^*)\neq 0$.
+
+Dann konvergiert das Newtonverfahren lokal gegen $x^*$ mit Konvergenzordnung
+$p=2$.\fishhere
+\end{prop}
+\begin{proof}
+Sei $\delta_0 > 0$ so, dass $\norm{\D f^{-1}(x)}\le C_0 < \infty$ für alle
+$x\in B_{\delta_0(x^*)}$ und $\D^2 f$ beschränkt in $B_{\delta_0}(x^*)$,
+\begin{align*}
+\abs{\frac{\partial^2 f_i}{\partial x_j\partial x_k}(x)} \le C_1,\quad \forall
+i,j,k = 1,\ldots,n,\; x\in B_{\delta_0}(x^*).
+\end{align*}
+Für $x^n\in B_{\delta_0}(x^*)$ gilt,
+\begin{align*}
+x^{n+1}-x^* = x^n - x^* - (\D f(x^n))^{-1}(f(x^n)-f(x^*)).
+\end{align*}
+Weiter folgt,
+\begin{align*}
+f(x^n)-f(x^*) &= \int\limits_0^1 \frac{\diffd}{\dt} f(tx^n + (1-t)x^*)\dt\\
+&= \int\limits_{0}^1 \D f(tx^n+(1-t)x^*)(x^n-x^*)\dt\\
+&= \D f(x^n)(x^n-x^*) \\ &\qquad+ \int\limits_0^1 \left(\D f(tx^n+(1-t)x^*)-\D
+f(x^n)\right)(x^n-x^*)\dt
+\end{align*}
+Wir können somit den Abstand von $x^{n+1}$ und $x^*$ abschätzen,
+\begin{align*}
+\norm{x^{n+1}-x^*} &\le \underbrace{\norm{x^n-x^* - (\D f(x^n))^{-1}\D
+f(x^n)(x^n-x^*)}}_{=0}\\
+&+ \norm{(\D f(x^{n}))^{-1}\int\limits_0^1\underbrace{\D
+f(tx^n+(1-t)x^*)-\D f(x^n)}_{\norm{\cdot}\le
+C_3(1-t)\norm{x^n-x^*}}(x^n-x^*)\dt}\\ &\le C_0 C_2 \norm{x^n-x^*}^2,
+\end{align*}
+denn $f$ ist $C^2$ und daher ist $\D f$ lipschitz. Damit ist die quadratische
+Konvergenz gezeigt.
+
+Für $S:=\min\setd{\frac{1}{C_0 C_2},\delta_0}$ und $x^n\in B_\delta(x^*)$ folgt,
+\begin{align*}
+\norm{x^{n+1}-x^*} \le \frac{1}{2}\norm{x^n-x^*}
+\Rightarrow
+\norm{x^n-x^*} \le \frac{1}{2^n}\norm{x^0-x^*} \overset{n\to\infty}{\to} 0.
+\end{align*}
+für $x_0\in B_\delta(x^*)$. Damit ist die lokale Konvergenz gezeigt.\qedhere
+\end{proof}
+
+\subsubsection{Dämpfung des Newton-Verfahrens}
+
+Um den ``Einzugsbereich'' der Konvergenz des Newton-Verfahrens  zu vergrößern,
+kann man folgendene Strategie benutzen:
+
+\begin{tabbing}
+\hspace{20pt}	Schritt $n\to n+1$\\
+\hspace{40pt}		Löse \\
+\hspace{60pt}			$\D f(x^n)d^n = -f(x^n)$\\
+\hspace{40pt}		Wähle $\lambda\in (0,1]$ so, dass \\
+\hspace{60pt}			$\norm{f(x^n+\lambda_n d^n)}\le \norm{f(x^n)}$.\\
+\hspace{40pt}		Setze\\
+\hspace{60pt}			$x^{n+1}=x^n+\lambda_n d^n$.
+\end{tabbing}
+
+\begin{figure}[!htbp]
+\centering
+\begin{pspicture}(-0.2,-1.265)(4.06,1.265)
+\psline{->}(0.58,-1.26)(0.58,1.2)
+\psline{->}(0.38,-0.46)(4.02,-0.46)
+\psbezier[linecolor=darkblue](0.9,-1.22)(1.12,0.52)(2.56,0.24)(3.1,1.18)
+\psline[linecolor=yellow](3.46,1.26)(0.26,-0.94)
+\psdots(2.66,-0.44)
+
+\rput(3.93,-0.635){\color{gdarkgray}$x$}
+\rput(0.15,1.025){\color{gdarkgray}$f(x)$}
+\rput(0.29,-0.715){\color{gdarkgray}$t$}
+\rput(2.66,-0.715){\color{gdarkgray}$x_0$}
+\end{pspicture}
+\caption{Zur Veranschaulichung des Verfahrens.}
+\end{figure}
+
+Es gilt,
+\begin{align*}
+f(x^n + \lambda_n d^n) = f(x^n) + \underbrace{\D f(x^n)}_{-\lambda_n
+f(x^n)}\lambda_n d^n + \OO(\lambda_n^2) = (1-\lambda_n)f(x^n) + \OO(\lambda_n^2)
+\end{align*}
+Für $\lambda_n$ klein genug und $f(x^n)\neq 0$ kann
+\begin{align*}
+\norm{f(x^n+\lambda d^n)}\le \norm{f(x^n)}
+\end{align*}
+garantiert werden. Für ein $\beta\in (0,1)$ und $\lambda$ klein genug gilt
+sogar,
+\begin{align*}
+\norm{f(x^n+\lambda_n d^n)} \le (1-\beta\lambda_n)\norm{f(x^n)}
+\end{align*}
+\begin{propn}[Armijo-Regel zur Wahl von $\lambda_n$]
+Seien $\alpha,\beta\in (0,1)$. Setze
+\begin{align*}
+\lambda_n = \alpha^k,\quad \text{mit } k =
+\min\setdef{j\in\N_0}{\norm{f(x^n+x^jd^n)}\le (1-\beta
+\alpha^j)\norm{f(x^n)}}\fishhere
+\end{align*}
+\end{propn}
+Damit lässt sich jedoch immernoch keine Konvergenz garantieren.
+
+\begin{figure}
+\centering
+\begin{pspicture}(-0.2,-1.245)(4.06,1.245)
+\psline{->}(0.58,-1.24)(0.58,1.22)
+\psline{->}(0.38,-0.44)(4.02,-0.44)
+\psbezier[linecolor=darkblue](0.9,-1.2)(0.84,1.24)(3.1,-1.12)(3.1,1.2)
+\psline[linecolor=yellow](3.52,0.36)(0.5,-0.48)
+\psdots(2.54,-0.42)
+
+\rput(3.93,-0.615){\color{gdarkgray}$x$}
+\rput(0.15,1.045){\color{gdarkgray}$f(x)$}
+\rput(0.29,-0.695){\color{gdarkgray}$t$}
+\rput(2.54,-0.675){\color{gdarkgray}$x_0$}
+\end{pspicture} 
+\caption{Hier würde die Dämpfung eine Approximation des Sattelpunkts anstatt
+der Nullsstelle bewirken.}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{pspicture}(-0.2,-1.235)(4.06,1.25)
+\psline{->}(0.58,-1.23)(0.58,1.23)
+\psline{->}(0.38,-0.43)(4.02,-0.43)
+
+\rput(3.93,-0.605){\color{gdarkgray}$x$}
+\rput(0.15,1.055){\color{gdarkgray}$f(x)$}
+\rput(0.29,-0.685){\color{gdarkgray}$t$}
+\psbezier[linecolor=darkblue](0.66,-1.17)(0.9,-0.11)(0.98,1.09)(1.74,1.09)(2.5,1.09)(2.58,0.15)(2.94,0.15)(3.3,0.15)(3.22,0.49)(3.56,0.85)
+\psline[linestyle=dotted,dotsep=0.06cm](0.38,0.59)(3.86,0.59)
+\psline[linecolor=yellow](2.18,1.07)(3.34,-0.67)
+\psline[linecolor=yellow](3.6,1.09)(2.78,-0.67)
+\end{pspicture}
+\caption{Hier würde die Dämpfung verhindern, dass $x^n$ aus dem lokalen
+Minimum hinauszukommt.}
+\end{figure}
+
+\subsection{Abbruchkriterien}
+
+Jedes Iterationsverfahren der Form,
+\begin{align*}
+x^{n+1} = \phi(x^n)
+\end{align*}
+muss beendet werden, wenn $x^n$ ``nahe genug'' an der Lösung $x^*$ liegt. 
+
+Das optimal Abbruchkriterium wäre,
+\begin{align*}
+\norm{x^n-x^*} < \ep = \text{ vorgegebene Toleranz},
+\end{align*}
+doch dieses ist leider unbrauchbar, da $x^*$ unbekannt.
+
+Mögliche Abbruchkriterien
+\begin{enumerate}[label=(\roman{*})]
+\item $\norm{f(x^n)}< \ep$,
+\item $\norm{x^{n+1}-x^n} \le \ep$,
+\item $\norm{(\D f(x^n))^{-1}f(x^n)}<\ep$.
+\end{enumerate}
+Beim klassischen Newtonverfahren sind (ii) und (iii) identisch, denn
+\begin{align*}
+x^{n+1}-x^n = d^n = -(\D f(x^n))^{-1}f(x^n).
+\end{align*}
+Rechtfertigung für (iii):
+\begin{align*}
+&0 = f(x^*) = f(x^n) + \D f(x^n)(x^*-x^n) + \ldots\\
+\Rightarrow & x^* -x^n = -(\D f(x^n))^{-1}f(x^n) + \ldots
+\end{align*}
